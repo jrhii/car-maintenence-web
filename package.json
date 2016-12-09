@@ -1,0 +1,26 @@
+{
+  "name": "car-maintenence-web",
+  "version": "1.0.0",
+  "description": "track maitenence and mileage through browser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jrhii/car-maintenence-web.git"
+  },
+  "author": "James R Harter II",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jrhii/car-maintenence-web/issues"
+  },
+  "homepage": "https://github.com/jrhii/car-maintenence-web#readme",
+  "devDependencies": {
+    "babel-preset-latest": "^6.16.0",
+    "eslint": "^3.11.1",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-eslint": "^3.0.1"
+  }
+}
