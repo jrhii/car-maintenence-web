@@ -16,12 +16,12 @@ gulp.task('lint', () => {
         .pipe(eslint.format());
 });
 
-gulp.task('babel', ['lint'], () => {
+gulp.task('babel', () => {
     return gulp.src(SOURCE_FILES)
         .pipe(babel())
         .on('error', swallow)
         .pipe(gulp.dest('dist'));
-})
+});
 
 gulp.task('watch', ['babel'], () => {
     gulp.watch('src/**/*.js', ['babel']);
