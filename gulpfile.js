@@ -8,18 +8,25 @@ function swallow(error) {
     this.emit('end');
 }
 
-const SOURCE_FILES = ['src/**/*.js'];
+const SOURCE_FILES_JS = ['src/**/*.js'];
+const SOURCE_FILES_OTHER = ['src/**/*.{html,tag}'];
+
 
 gulp.task('lint', () => {
-    return gulp.src(SOURCE_FILES)
+    return gulp.src(SOURCE_FILES_JS)
         .pipe(eslint())
         .pipe(eslint.format());
 });
 
-gulp.task('babel', () => {
-    return gulp.src(SOURCE_FILES)
+gulp.task('babel', ['other'], () => {
+    return gulp.src(SOURCE_FILES_JS)
         .pipe(babel())
         .on('error', swallow)
+        .pipe(gulp.dest('dist'));
+});
+
+gulp.task('other', () => {
+    gulp.src(SOURCE_FILES_OTHER)
         .pipe(gulp.dest('dist'));
 });
 
