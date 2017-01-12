@@ -4,8 +4,8 @@ import express from 'express';
 const server = new express();
 
 server.get('/', (req, res) => {
-    //res.sendFile(__dirname + '/index.html');
-    res.sendFile(__dirname + '/login-form/index.html');
+    res.sendFile(__dirname + '/index.html');
+    //res.sendFile(__dirname + '/login-form/index.html');
 });
 
 server.get('/test.tag', (req, res) => {
