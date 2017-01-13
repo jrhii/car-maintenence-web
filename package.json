@@ -26,9 +26,11 @@
     "gulp-babel": "^6.1.2",
     "gulp-eslint": "^3.0.1",
     "nodemon": "^1.11.0"
-},
-"dependencies": {
+  },
+  "dependencies": {
     "express": "^4.14.0",
-    "pg": "^6.1.1"
-}
+    "pbkdf2": "^3.0.9",
+    "secure-random": "^1.1.1",
+    "socket.io": "^1.7.2"
+  }
 }

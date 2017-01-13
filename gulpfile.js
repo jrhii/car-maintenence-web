@@ -31,7 +31,7 @@ gulp.task('other', () => {
 });
 
 gulp.task('watch', ['babel'], () => {
-    gulp.watch('src/**/*.js', ['babel']);
+    gulp.watch('src/**/*', ['babel']);
 });
 
 gulp.task('default', ['babel']);

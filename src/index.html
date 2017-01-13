@@ -27,12 +27,18 @@
 
     <!-- include the tag -->
     <script src="https://cdn.jsdelivr.net/riot/3.0/riot+compiler.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
 
     <script src="test.tag" type="riot/tag"></script>
 
     <!-- mount the tag -->
     <script>
-        riot.mount('test')
+        var socket = io.connect('http://localhost:3000');
+
+        socket.on('connect', function() {
+            riot.mount('test', socket)
+        });
     </script>
+
 
 </body>
