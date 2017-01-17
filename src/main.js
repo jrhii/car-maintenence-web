@@ -24,6 +24,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('register', (username, password) => {
+        console.log(`registering ${username}`);
         const ITERATION = 20000;
         const salt = crypto.randomBytes(16);
         const hashed = crypto.pbkdf2Sync(password, salt, ITERATION, 256, 'sha256');

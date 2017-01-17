@@ -1,15 +1,4 @@
-const HelloWorld = React.createClass({
 
-    /*   <input ref="password" placeholder="password" required="required">
-      <button ref="submit">Login</button>
-    </form>
-    <button ref="print" onclick={ print}>print</button>
-*/
-
-    render: function() {
-        return React.createElement("h1", null, "Hello World!");
-    }
-});
 
 class NameForm extends React.Component {
     constructor(props) {
@@ -19,6 +8,7 @@ class NameForm extends React.Component {
         this.handleUsername = this.handleUsername.bind(this);
         this.handlePassword = this.handlePassword.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.socket = io();
     }
 
     handleUsername(event) {
@@ -30,7 +20,8 @@ class NameForm extends React.Component {
     }
 
     handleSubmit(event) {
-        alert('A name was submitted: ' + this.state.username);
+        this.socket.emit('register', this.state.username, this.state.password);
+        console.log('A name was submitted: ' + this.state.username);
         event.preventDefault();
     }
 
