@@ -5,14 +5,16 @@
       <input ref="password" placeholder="password" required="required">
       <button ref="submit">Login</button>
     </form>
-    <button ref="print" onclick={ print}>print</button>
 
     <script>
-        print(e) {
+        const socket = opts.socket
+
+        submit(e) {
             let username = this.refs.username.value,
                 password = this.refs.password.value
 
-            console.log('username', username)
+            socket.emit('register', username, password)
+            //check for login
         }
     </script>
 

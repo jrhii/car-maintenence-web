@@ -8,7 +8,7 @@ function swallow(error) {
     this.emit('end');
 }
 
-const SOURCE_FILES_JS = ['src/**/*.js'];
+const SOURCE_FILES_JS = ['src/**/*.{js,jsx}'];
 const SOURCE_FILES_OTHER = ['src/**/*.{html,tag}'];
 
 
@@ -31,7 +31,7 @@ gulp.task('other', () => {
 });
 
 gulp.task('watch', ['babel'], () => {
-    gulp.watch('src/**/*.js', ['babel']);
+    gulp.watch('src/**/*', ['babel']);
 });
 
 gulp.task('default', ['babel']);
