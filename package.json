@@ -30,10 +30,9 @@
   },
   "dependencies": {
     "express": "^4.14.0",
-    "pbkdf2": "^3.0.9",
-    "ract": "0.0.1",
+    "react": "^15.4.2",
     "react-dom": "^15.4.2",
-    "secure-random": "^1.1.1",
+    "rethinkdb": "^2.3.3",
     "socket.io": "^1.7.2"
   }
 }
