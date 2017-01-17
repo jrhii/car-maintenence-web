@@ -8,7 +8,7 @@ function swallow(error) {
     this.emit('end');
 }
 
-const SOURCE_FILES_JS = ['src/**/*.js'];
+const SOURCE_FILES_JS = ['src/**/*.{js,jsx}'];
 const SOURCE_FILES_OTHER = ['src/**/*.{html,tag}'];
 
 

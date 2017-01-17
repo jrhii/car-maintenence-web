@@ -20,6 +20,7 @@
   "devDependencies": {
     "babel-eslint": "^7.1.1",
     "babel-preset-latest": "^6.16.0",
+    "babel-preset-react": "^6.16.0",
     "eslint": "^3.11.1",
     "foreman": "^2.0.0",
     "gulp": "^3.9.1",
@@ -30,6 +31,8 @@
   "dependencies": {
     "express": "^4.14.0",
     "pbkdf2": "^3.0.9",
+    "ract": "0.0.1",
+    "react-dom": "^15.4.2",
     "secure-random": "^1.1.1",
     "socket.io": "^1.7.2"
   }

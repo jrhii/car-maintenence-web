@@ -14,8 +14,8 @@ app.get('/', (req, res) => {
     //res.sendFile(__dirname + '/login-form/index.html');
 });
 
-app.get('/test.tag', (req, res) => {
-    res.sendFile(__dirname + '/test.tag');
+app.get('/test.js', (req, res) => {
+    res.sendFile(__dirname + '/test.js');
 });
 
 io.on('connection', (socket) => {
