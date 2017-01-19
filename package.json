@@ -5,7 +5,10 @@
   "main": "./dist/main.js",
   "scripts": {
     "start": "nf start",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "app": "react-scripts start",
+    "build-app": "react-scripts build",
+    "test-app": "react-scripts test --env=jsdom",
+    "eject-app": "react-scripts eject"
   },
   "repository": {
     "type": "git",
@@ -18,21 +21,18 @@
   },
   "homepage": "https://github.com/jrhii/car-maintenence-web#readme",
   "devDependencies": {
-    "babel-eslint": "^7.1.1",
     "babel-preset-latest": "^6.16.0",
     "babel-preset-react": "^6.16.0",
-    "eslint": "^3.11.1",
     "foreman": "^2.0.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
-    "gulp-eslint": "^3.0.1",
-    "nodemon": "^1.11.0"
+    "nodemon": "^1.11.0",
+    "react-scripts": "0.8.5",
+    "rethinkdb": "^2.3.3"
   },
   "dependencies": {
     "express": "^4.14.0",
     "react": "^15.4.2",
-    "react-dom": "^15.4.2",
-    "rethinkdb": "^2.3.3",
-    "socket.io": "^1.7.2"
+    "react-dom": "^15.4.2"
   }
 }
