@@ -1,16 +1,21 @@
 
 import http from 'http';
 import express from 'express';
-import crypto from 'crypto';
-import rethink from 'rethinkdb';
-import fs from 'fs';
+//import crypto from 'crypto';
+//import rethink from 'rethinkdb';
+//import fs from 'fs';
 
 const app = new express();
 const server = http.createServer(app);
-const io = socketio(server);
 
-const DB_ADDRESS = {host: 'localhost', port: 28015};
-let connection = null;
+//const DB_ADDRESS = {host: 'localhost', port: 28015};
+//let connection = null;
+
+app.post('/login', (req, res) => {
+    for (var pair of req.formData.entries()) {
+        console.log(pair[0]+ ', '+ pair[1]);
+    }
+});
 
 /*
 app.get('/', (req, res) => {
