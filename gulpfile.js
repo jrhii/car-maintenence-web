@@ -1,6 +1,5 @@
 var gulp = require('gulp');
 var babel = require('gulp-babel');
-var eslint = require('gulp-eslint');
 
 function swallow(error) {
     console.error(error.toString());
@@ -8,30 +7,23 @@ function swallow(error) {
     this.emit('end');
 }
 
-const SOURCE_FILES_JS = ['src/**/*.{js,jsx}'];
-const SOURCE_FILES_OTHER = ['src/**/*.{html,tag}'];
-
-
-gulp.task('lint', () => {
-    return gulp.src(SOURCE_FILES_JS)
-        .pipe(eslint())
-        .pipe(eslint.format());
-});
+const SOURCE_FILES_JS = ['server/src/**/*.{js,jsx}'];
+const SOURCE_FILES_OTHER = ['server/src/**/*.{html,tag}'];
 
 gulp.task('babel', ['other'], () => {
     return gulp.src(SOURCE_FILES_JS)
         .pipe(babel())
         .on('error', swallow)
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest('server/dist'));
 });
 
 gulp.task('other', () => {
     gulp.src(SOURCE_FILES_OTHER)
-        .pipe(gulp.dest('dist'));
+        .pipe(gulp.dest('server/dist'));
 });
 
 gulp.task('watch', ['babel'], () => {
-    gulp.watch('src/**/*', ['babel']);
+    gulp.watch('server/src/**/*', ['babel']);
 });
 
 gulp.task('default', ['babel']);
