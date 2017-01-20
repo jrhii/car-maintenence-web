@@ -7,27 +7,30 @@ class App extends Component {
         super(props);
         this.state = {username: '', password: ''};
 
-        this.postLogin = this.postLogin.bind(this);
+        this.handleEvent = this.handleEvent.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
 
-    postLogin() {
-        event.preventDefault();
+    handleEvent(event) {
+        const init = {method: 'post',
+            headers: {
+                "Content-type": 'application/json',
+            },
+            body: JSON.stringify({
+                username: this.state.username,
+                password: this.state.password,
+            }),
+        };
 
-        const formData = new FormData();
-        formData.append('username', this.state.username);
-        formData.append('password', this.state.password);
-
-        const init = {method: 'POST',
-            body: formData};
-
-        fetch('/login',init).then((res) => {
+        fetch(`/${event.target.name}`,init).then((res) => {
             if (res.ok) {
                 console.log('post success');
             } else {
                 console.log('post unsuccess');
             }
         });
+
+        event.preventDefault();
     }
 
     handleChange(event) {
@@ -42,11 +45,11 @@ class App extends Component {
                     <h2>Welcome to React</h2>
                 </div>
 
-                <form onSubmit={this.postLogin}>
+                <form name="login" onSubmit={this.handleEvent}>
                     <input type="text" name="username" className="Username" placeholder="username" value={this.state.username} onChange={this.handleChange} required="required"/>
                     <input type="text" name="password" className="Password" placeholder="password" value={this.state.password} onChange={this.handleChange} required="required"/>
                     <input type="submit" value="Login"/>
-                    <button type="button">Register</button>
+                    <button type="button" name="register" onClick={this.handleEvent}>Register</button>
                 </form>
 
             </div>
