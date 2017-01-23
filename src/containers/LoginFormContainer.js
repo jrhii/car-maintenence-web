@@ -9,6 +9,7 @@ class LoginFormContainer extends Component {
         this.handleEvent = this.handleEvent.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.clearForm = this.clearForm.bind(this);
+        this.handleUsernameCheck = this.handleUsernameCheck.bind(this);
     }
 
     clearForm(){
@@ -44,23 +45,50 @@ class LoginFormContainer extends Component {
         this.setState({[event.target.name]: event.target.value});
     }
 
+    handleUsernameCheck(event) {
+        const init = {
+            method: 'post',
+            headers: {
+                "Content-type": 'application/json',
+            },
+            body: JSON.stringify({
+                username: this.state.username,
+            }),
+        };
+
+        fetch('/checkUsername',init).then((res) => {
+            if (res.ok) {
+                console.log('post success');
+            } else {
+                console.log('post unsuccess');
+            }
+        });
+
+    }
+
     render() {
         return (
             <form name="login" onSubmit={this.handleEvent}>
                 <SingleInput
+                    className={'form-control'}
                     inputType={'text'}
                     name={'username'}
                     controlFunc={this.handleChange}
                     content={this.state.username}
                     placeholder={'Username'} />
                 <SingleInput
+                    className={'form-control'}
                     inputType={'text'}
                     name={'password'}
                     controlFunc={this.handleChange}
                     content={this.state.password}
                     placeholder={'Password'} />
-                <input className="btn btn-primary" type="submit" value="Login"/>
-                <button type="button" className="btn btn-secondary" name="register" onClick={this.handleEvent}>Register</button>
+                <button className="btn btn-secondary" type="button" onClick={this.handleUsernameCheck}>Check Username</button>
+                <br/>
+                <div className="btn-group" role="group" aria-label="Login">
+                    <input className="btn btn-primary" type="submit" value="Login"/>
+                    <button type="button" className="btn btn-outline-primary" name="register" onClick={this.handleEvent}>Register</button>
+                </div>
             </form>
         );
     }

@@ -12,6 +12,26 @@ const DB_ADDRESS = {host: 'localhost', port: 28015};
 let connection = null;
 app.use(bodyParser.json());
 
+app.post('/checkUsername', (req, res) => {
+    res.sendStatus(200);
+
+    const username = req.body.username;
+
+    console.log(`Checking username ${username}`);
+
+    rethink.table('login').filter(rethink.row('username').eq(username)).
+        run(connection, (err, cursor) => {
+            if (err) throw err;
+            cursor.toArray((err, arr) => {
+                if(arr.length > 0) {
+                    console.log(`${username} exists.`);
+                } else {
+                    console.log(`${username} not found.`);
+                }
+            });
+        });
+});
+
 app.post('/login', (req, res) => {
     res.sendStatus(200);
 
