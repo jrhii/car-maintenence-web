@@ -34,7 +34,9 @@
   "dependencies": {
     "body-parser": "^1.16.0",
     "express": "^4.14.0",
+    "jsonwebtoken": "^7.2.1",
     "react": "^15.4.2",
-    "react-dom": "^15.4.2"
+    "react-dom": "^15.4.2",
+    "react-router": "^3.0.2"
   }
 }

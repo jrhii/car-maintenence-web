@@ -23,7 +23,7 @@ app.post('/checkUsername', (req, res) => {
         run(connection, (err, cursor) => {
             if (err) throw err;
             cursor.toArray((err, arr) => {
-                if(arr.length > 0) {
+                if (arr.length > 0) {
                     console.log(`${username} exists.`);
                 } else {
                     console.log(`${username} not found.`);
@@ -33,8 +33,6 @@ app.post('/checkUsername', (req, res) => {
 });
 
 app.post('/login', (req, res) => {
-    res.sendStatus(200);
-
     const login = {
         username: req.body.username,
         password: req.body.password,
@@ -49,9 +47,11 @@ app.post('/login', (req, res) => {
                 console.log(row.username);
                 if (err) throw err;
                 if (verifyLogin(row, login.password)) {
+                    res.sendStatus(200);
                     console.log(`${login.username} login verified.`);
                     cursor.close;
                 } else {
+                    res.sendStatus(401);
                     console.log('Bad Login');
                 }
             });

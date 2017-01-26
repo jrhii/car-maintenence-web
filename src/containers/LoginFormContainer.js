@@ -12,7 +12,7 @@ class LoginFormContainer extends Component {
         this.handleUsernameCheck = this.handleUsernameCheck.bind(this);
     }
 
-    clearForm(){
+    clearForm() {
         this.setState({username : '', password: ''});
     }
 
@@ -69,13 +69,18 @@ class LoginFormContainer extends Component {
     render() {
         return (
             <form name="login" onSubmit={this.handleEvent}>
-                <SingleInput
-                    className={'form-control'}
-                    inputType={'text'}
-                    name={'username'}
-                    controlFunc={this.handleChange}
-                    content={this.state.username}
-                    placeholder={'Username'} />
+                <div className="input-group">
+                    <SingleInput
+                        className={'form-control'}
+                        inputType={'text'}
+                        name={'username'}
+                        controlFunc={this.handleChange}
+                        content={this.state.username}
+                        placeholder={'Username'} />
+                    <span className="input-group-btn">
+                        <button className="btn btn-secondary" type="button" onClick={this.handleUsernameCheck}>Check Username</button>
+                    </span>
+                </div>
                 <SingleInput
                     className={'form-control'}
                     inputType={'text'}
@@ -83,7 +88,6 @@ class LoginFormContainer extends Component {
                     controlFunc={this.handleChange}
                     content={this.state.password}
                     placeholder={'Password'} />
-                <button className="btn btn-secondary" type="button" onClick={this.handleUsernameCheck}>Check Username</button>
                 <br/>
                 <div className="btn-group" role="group" aria-label="Login">
                     <input className="btn btn-primary" type="submit" value="Login"/>

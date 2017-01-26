@@ -1,16 +1,16 @@
 import React, { Component } from 'react';
 import './App.css';
-import LoginFormContainer from './containers/LoginFormContainer';
 
 class App extends Component {
     render() {
         return (
             <div className="App">
                 <div className="App-header">
-                    <h2>Car Maitenence Tracker</h2>
+                    <h2>Car Maitenance Tracker</h2>
                 </div>
+                <br/>
 
-                <LoginFormContainer />
+                {this.props.children}
 
             </div>
         );

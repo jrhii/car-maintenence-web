@@ -1,8 +1,6 @@
 import React from 'react';
 
 const SingleInput = (props) => (
-	<div className="form-group">
-		<label className="form-label">{props.title}</label>
 		<input
 			className={props.className}
 			name={props.name}
@@ -10,12 +8,10 @@ const SingleInput = (props) => (
 			value={props.content}
 			onChange={props.controlFunc}
 			placeholder={props.placeholder} />
-	</div>
 );
 
 SingleInput.propTypes = {
 	inputType: React.PropTypes.oneOf(['text', 'number']).isRequired,
-	title: React.PropTypes.string,
     className: React.PropTypes.string.isRequired,
 	name: React.PropTypes.string.isRequired,
 	controlFunc: React.PropTypes.func.isRequired,
