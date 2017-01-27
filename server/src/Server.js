@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.post('/checkUsername', (req, res) => {
     res.sendStatus(200);
 
-    const username = req.body.username;
+    const username = req.body.username.toLowerCase();
 
     console.log(`Checking username ${username}`);
 
@@ -34,7 +34,7 @@ app.post('/checkUsername', (req, res) => {
 
 app.post('/login', (req, res) => {
     const login = {
-        username: req.body.username,
+        username: req.body.username.toLowerCase(),
         password: req.body.password,
     };
 
@@ -62,7 +62,7 @@ app.post('/register', (req, res) => {
     res.sendStatus(200);
 
     const login = {
-        username: req.body.username,
+        username: req.body.username.toLowerCase(),
         password: req.body.password,
     };
 
