@@ -57,13 +57,16 @@ class LoginFormContainer extends Component {
         };
 
         fetch('/checkUsername',init).then((res) => {
-            if (res.ok) {
-                console.log('post success');
-            } else {
-                console.log('post unsuccess');
-            }
+            res.json().then((json) => {
+                if (!json.exists) {
+                    alert('Username available');
+                } else {
+                    alert('Username taken');
+                }
+            });
         });
 
+        event.preventDefault();
     }
 
     render() {

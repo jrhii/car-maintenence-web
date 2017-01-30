@@ -1,38 +1,37 @@
-
 import http from 'http';
 import express from 'express';
 import bodyParser from 'body-parser';
 import crypto from 'crypto';
-import rethink from 'rethinkdb';
+import {MongoClient} from 'mongodb';
+import assert from 'assert';
 
 const app = new express();
 const server = http.createServer(app);
 
-const DB_ADDRESS = {host: 'localhost', port: 28015};
-let connection = null;
+const DB_ADDRESS = 'mongodb://localhost:27017/car-app';
+let db = null;
 app.use(bodyParser.json());
 
 app.post('/checkUsername', (req, res) => {
-    res.sendStatus(200);
 
     const username = req.body.username.toLowerCase();
+    const collection = db.collection('login');
 
     console.log(`Checking username ${username}`);
 
-    rethink.table('login').filter(rethink.row('username').eq(username)).
-        run(connection, (err, cursor) => {
-            if (err) throw err;
-            cursor.toArray((err, arr) => {
-                if (arr.length > 0) {
-                    console.log(`${username} exists.`);
-                } else {
-                    console.log(`${username} not found.`);
-                }
-            });
-        });
+    collection.find({ username: username}).toArray((err, result) => {
+        if (result.length > 0) {
+            console.log(`${username} exists.`);
+            res.json({ exists: true});
+        } else {
+            console.log(`${username} not found.`);
+            res.json({ exists: false});
+        }
+    });
 });
 
 app.post('/login', (req, res) => {
+    const collection = db.collection('login');
     const login = {
         username: req.body.username.toLowerCase(),
         password: req.body.password,
@@ -40,27 +39,25 @@ app.post('/login', (req, res) => {
 
     console.log('Checking Login');
 
-    rethink.table('login').filter(rethink.row('username').eq(login.username)).
-        run(connection, (err, cursor) => {
-            if (err) throw err;
-            cursor.each((err, row) => {
-                console.log(row.username);
-                if (err) throw err;
-                if (verifyLogin(row, login.password)) {
-                    res.sendStatus(200);
-                    console.log(`${login.username} login verified.`);
-                    cursor.close;
-                } else {
-                    res.sendStatus(401);
-                    console.log('Bad Login');
-                }
-            });
-        });
+    collection.find({ username: login.username}).toArray((err, result) => {
+        if (err) throw err;
+        if (result.length !== 1) {
+            throw console.log('Error in username number!' + result);
+        }
+
+        const loginAttempt = result[0];
+
+        if (verifyLogin(loginAttempt, login.password)) {
+            res.sendStatus(200).end();
+            console.log(`${login.username} login verified.`);
+        } else {
+            res.sendStatus(401).end();
+            console.log('Bad Login');
+        }
+    });
 });
 
 app.post('/register', (req, res) => {
-    res.sendStatus(200);
-
     const login = {
         username: req.body.username.toLowerCase(),
         password: req.body.password,
@@ -78,16 +75,25 @@ app.post('/register', (req, res) => {
         hashed : hashed,
     };
 
-    rethink.table('login').insert(store).run(connection, (err, result) => {
+    const collection = db.collection('login');
+
+    //TODO ONLY ON USER CHECK
+
+    collection.insertOne(store, (err, result) => {
         if (err) throw err;
-        console.log(JSON.stringify(result, null, 2));
+        console.log(result.ops.length);
+        if (result.ops.length === 1) {
+            res.sendStatus(201).end();
+        }
     });
 });
 
 
-rethink.connect(DB_ADDRESS, (err, conn) => {
-    if (err) throw err;
-    connection = conn;
+MongoClient.connect(DB_ADDRESS, (err, conn) => {
+    assert.equal(null, err);
+    console.log('connected to db');
+
+    db = conn;
 });
 
 server.listen(4000, () => {
@@ -96,7 +102,7 @@ server.listen(4000, () => {
 
 
 function verifyLogin(row, password) {
-    const freshHash = crypto.pbkdf2Sync(password, row.salt, row.ITERATION, 256, 'sha256').toString('hex');
+    const freshHash = crypto.pbkdf2Sync(password, row.salt.buffer, row.ITERATION, 256, 'sha256').toString('hex');
 
     return row.hashed === freshHash;
 }
