@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import SingleInput from '../components/SingleInput';
+//import {Link} from 'react-router';
 
 class LoginFormContainer extends Component {
     constructor(props) {
@@ -31,6 +32,7 @@ class LoginFormContainer extends Component {
         fetch(`/${event.target.name}`,init).then((res) => {
             if (res.ok) {
                 console.log('post success');
+
             } else {
                 console.log('post unsuccess');
             }
