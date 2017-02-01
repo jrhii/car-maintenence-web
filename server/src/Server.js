@@ -1,12 +1,14 @@
 import http from 'http';
+import https from 'https';
 import express from 'express';
 import bodyParser from 'body-parser';
 import crypto from 'crypto';
 import {MongoClient} from 'mongodb';
 import assert from 'assert';
 
+
 const app = new express();
-const server = http.createServer(app);
+const httpServer = http.createhttpServer(app);
 
 const DB_ADDRESS = 'mongodb://localhost:27017/car-app';
 let db = null;
@@ -58,6 +60,7 @@ app.post('/login', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
+    const collection = db.collection('login');
     const login = {
         username: req.body.username.toLowerCase(),
         password: req.body.password,
@@ -66,25 +69,24 @@ app.post('/register', (req, res) => {
     console.log(`registering ${login.username}`);
     const ITERATION = 20000;
     const salt = crypto.randomBytes(16);
-    const hashed = crypto.pbkdf2Sync(login.password, salt, ITERATION, 256, 'sha256').toString('hex');
+    crypto.pbkdf2(login.password, salt, ITERATION, 256, 'sha256', (err, key) => {
 
-    const store = {
-        username : login.username,
-        ITERATION : ITERATION,
-        salt : salt,
-        hashed : hashed,
-    };
+        const store = {
+            username : login.username,
+            ITERATION,
+            salt,
+            hashed : key.toString('hex'),
+        };
 
-    const collection = db.collection('login');
+        //TODO ONLY ON USER CHECK
 
-    //TODO ONLY ON USER CHECK
-
-    collection.insertOne(store, (err, result) => {
-        if (err) throw err;
-        console.log(result.ops.length);
-        if (result.ops.length === 1) {
-            res.sendStatus(201).end();
-        }
+        collection.insertOne(store, (err, result) => {
+            if (err) throw err;
+            console.log(result.ops.length);
+            if (result.ops.length === 1) {
+                res.sendStatus(201);
+            }
+        });
     });
 });
 
@@ -96,7 +98,7 @@ MongoClient.connect(DB_ADDRESS, (err, conn) => {
     db = conn;
 });
 
-server.listen(4000, () => {
+httpServer.listen(4000, () => {
     console.log('listening on port 4000');
 });
 

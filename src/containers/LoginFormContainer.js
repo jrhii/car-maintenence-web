@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import SingleInput from '../components/SingleInput';
+import { loginAuth, usernameCheck } from '../service/auth';
 //import {Link} from 'react-router';
 
 class LoginFormContainer extends Component {
@@ -29,15 +30,7 @@ class LoginFormContainer extends Component {
             }),
         };
 
-        fetch(`/${event.target.name}`,init).then((res) => {
-            if (res.ok) {
-                console.log('post success');
-
-            } else {
-                console.log('post unsuccess');
-            }
-        });
-
+        loginAuth(init);
         this.clearForm();
 
         event.preventDefault();
@@ -58,16 +51,7 @@ class LoginFormContainer extends Component {
             }),
         };
 
-        fetch('/checkUsername',init).then((res) => {
-            res.json().then((json) => {
-                if (!json.exists) {
-                    alert('Username available');
-                } else {
-                    alert('Username taken');
-                }
-            });
-        });
-
+        usernameCheck(init);
         event.preventDefault();
     }
 
