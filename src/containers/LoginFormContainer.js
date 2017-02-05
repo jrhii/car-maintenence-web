@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import SingleInput from '../components/SingleInput';
+import Container from '../components/Container';
+import { loginAuth, usernameCheck } from '../service/auth';
 //import {Link} from 'react-router';
 
 class LoginFormContainer extends Component {
@@ -29,15 +31,7 @@ class LoginFormContainer extends Component {
             }),
         };
 
-        fetch(`/${event.target.name}`,init).then((res) => {
-            if (res.ok) {
-                console.log('post success');
-
-            } else {
-                console.log('post unsuccess');
-            }
-        });
-
+        loginAuth(init);
         this.clearForm();
 
         event.preventDefault();
@@ -58,47 +52,40 @@ class LoginFormContainer extends Component {
             }),
         };
 
-        fetch('/checkUsername',init).then((res) => {
-            res.json().then((json) => {
-                if (!json.exists) {
-                    alert('Username available');
-                } else {
-                    alert('Username taken');
-                }
-            });
-        });
-
+        usernameCheck(init);
         event.preventDefault();
     }
 
     render() {
         return (
-            <form name="login" onSubmit={this.handleEvent}>
-                <div className="input-group">
+            <Container>
+                <form name="login" onSubmit={this.handleEvent}>
+                    <div className="input-group">
+                        <SingleInput
+                            className={'form-control'}
+                            inputType={'text'}
+                            name={'username'}
+                            controlFunc={this.handleChange}
+                            content={this.state.username}
+                            placeholder={'Username'} />
+                        <span className="input-group-btn">
+                            <button className="btn btn-secondary" type="button" onClick={this.handleUsernameCheck}>Check Username</button>
+                        </span>
+                    </div>
                     <SingleInput
                         className={'form-control'}
                         inputType={'text'}
-                        name={'username'}
+                        name={'password'}
                         controlFunc={this.handleChange}
-                        content={this.state.username}
-                        placeholder={'Username'} />
-                    <span className="input-group-btn">
-                        <button className="btn btn-secondary" type="button" onClick={this.handleUsernameCheck}>Check Username</button>
-                    </span>
-                </div>
-                <SingleInput
-                    className={'form-control'}
-                    inputType={'text'}
-                    name={'password'}
-                    controlFunc={this.handleChange}
-                    content={this.state.password}
-                    placeholder={'Password'} />
-                <br/>
-                <div className="btn-group" role="group" aria-label="Login">
-                    <input className="btn btn-primary" type="submit" value="Login"/>
-                    <button type="button" className="btn btn-outline-primary" name="register" onClick={this.handleEvent}>Register</button>
-                </div>
-            </form>
+                        content={this.state.password}
+                        placeholder={'Password'} />
+                    <br/>
+                    <div className="btn-group" role="group" aria-label="Login">
+                        <input className="btn btn-primary" type="submit" value="Login"/>
+                        <button type="button" className="btn btn-outline-primary" name="register" onClick={this.handleEvent}>Register</button>
+                    </div>
+                </form>
+            </Container>
         );
     }
 }

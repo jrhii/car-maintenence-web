@@ -1,110 +1,67 @@
 import http from 'http';
 import express from 'express';
 import bodyParser from 'body-parser';
-import crypto from 'crypto';
 import {MongoClient} from 'mongodb';
+import mongoose from 'mongoose';
 import assert from 'assert';
 
-const app = new express();
-const server = http.createServer(app);
+import Auth from './Auth';
+import Vehicles from './Vehicles';
 
+import AuthSchema from './schema/auth-schema';
+import UserVehicleSchema from './schema/user-vehicle-schema';
+import UserSchema from './schema/user-schema';
+import VehicleSchema from './schema/vehicle-schema';
+
+const app = new express();
+const httpServer = http.createServer(app);
+const serverAuth = new Auth();
+const vehicles = new Vehicles('vehicles');
+
+const apiPort = 4000;
 const DB_ADDRESS = 'mongodb://localhost:27017/car-app';
-let db = null;
+
+mongoose.connect(DB_ADDRESS);
+const db = mongoose.connection;
+const models = {};
+db.once('open', buildModels);
+
 app.use(bodyParser.json());
 
 app.post('/checkUsername', (req, res) => {
-
-    const username = req.body.username.toLowerCase();
-    const collection = db.collection('login');
-
-    console.log(`Checking username ${username}`);
-
-    collection.find({ username: username}).toArray((err, result) => {
-        if (result.length > 0) {
-            console.log(`${username} exists.`);
-            res.json({ exists: true});
-        } else {
-            console.log(`${username} not found.`);
-            res.json({ exists: false});
-        }
-    });
+    serverAuth.checkUsername(req, res, models.AuthModel);
 });
 
 app.post('/login', (req, res) => {
-    const collection = db.collection('login');
-    const login = {
-        username: req.body.username.toLowerCase(),
-        password: req.body.password,
-    };
-
-    console.log('Checking Login');
-
-    collection.find({ username: login.username}).toArray((err, result) => {
-        if (err) throw err;
-        if (result.length !== 1) {
-            throw console.log('Error in username number!' + result);
-        }
-
-        const loginAttempt = result[0];
-
-        if (verifyLogin(loginAttempt, login.password)) {
-            res.sendStatus(200).end();
-            console.log(`${login.username} login verified.`);
-        } else {
-            res.sendStatus(401).end();
-            console.log('Bad Login');
-        }
-    });
+    serverAuth.checkLogin(req, res, models.AuthModel);
 });
 
 app.post('/register', (req, res) => {
-    const login = {
-        username: req.body.username.toLowerCase(),
-        password: req.body.password,
-    };
-
-    console.log(`registering ${login.username}`);
-    const ITERATION = 20000;
-    const salt = crypto.randomBytes(16);
-    const hashed = crypto.pbkdf2Sync(login.password, salt, ITERATION, 256, 'sha256').toString('hex');
-
-    const store = {
-        username : login.username,
-        ITERATION : ITERATION,
-        salt : salt,
-        hashed : hashed,
-    };
-
-    const collection = db.collection('login');
-
-    //TODO ONLY ON USER CHECK
-
-    collection.insertOne(store, (err, result) => {
-        if (err) throw err;
-        console.log(result.ops.length);
-        if (result.ops.length === 1) {
-            res.sendStatus(201).end();
-        }
-    });
+    serverAuth.register(req, res, models.AuthModel, models.UserModel);
 });
 
-
-MongoClient.connect(DB_ADDRESS, (err, conn) => {
-    assert.equal(null, err);
-    console.log('connected to db');
-
-    db = conn;
+app.get('/vehicles', (req, res) => {
+    vehicles.getVehicles(req, res, db);
 });
 
-server.listen(4000, () => {
+app.post('/vehicles/new', (req, res) => {
+    vehicles.newVehicle(req, res, db);
+});
+
+app.get('/', (req, res) => {
+    res.json({ message: `connected to ${apiPort}`});
+});
+
+httpServer.listen(apiPort, () => {
     console.log('listening on port 4000');
 });
 
-
-function verifyLogin(row, password) {
-    const freshHash = crypto.pbkdf2Sync(password, row.salt.buffer, row.ITERATION, 256, 'sha256').toString('hex');
-
-    return row.hashed === freshHash;
+function buildModels() {
+    console.log('connected to db');
+    models['AuthModel'] = mongoose.model('Auth', AuthSchema);
+    models['UserModel'] = mongoose.model('User', UserSchema);
+    models['UserVehicleModel'] = mongoose.model('User-Vehicle', UserVehicleSchema);
+    models['VehicleModel'] = mongoose.model('Vehicle', VehicleSchema);
 }
 
 
