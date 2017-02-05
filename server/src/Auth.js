@@ -1,17 +1,12 @@
 import crypto from 'crypto';
 
 class Auth {
-    constructor(collectionStr) {
-        this.collectionStr = collectionStr;
-    }
-
-    checkUsername(req, res, db) {
-        const collection = db.collection(this.collectionStr);
+    checkUsername(req, res, AuthModel) {
         const username = req.body.username.toLowerCase();
         console.log(`Checking username ${username}`);
 
-        collection.find({ username: username}).toArray((err, result) => {
-            if (result.length > 0) {
+        AuthModel.find({ username: username}, (err, arr) => {
+            if (arr.length > 0) {
                 console.log(`${username} exists.`);
                 res.json({exists: true});
             } else {
@@ -21,8 +16,7 @@ class Auth {
         });
     }
 
-    checkLogin(req, res, db) {
-        const collection = db.collection(this.collectionStr);
+    checkLogin(req, res, AuthModel) {
         const login = {
             username: req.body.username.toLowerCase(),
             password: req.body.password,
@@ -30,26 +24,14 @@ class Auth {
 
         console.log('Checking Login');
 
-        collection.find({ username: login.username}).toArray((err, result) => {
+        AuthModel.find({ username: login.username}, (err, arr) => {
             if (err) throw err;
-            if (result.length !== 1) {
-                throw console.log('Error in username number!' + result);
-            }
-
-            const loginAttempt = result[0];
-
-            if (this.verifyLogin(loginAttempt, login.password)) {
-                res.sendStatus(200);
-                console.log(`${login.username} login verified.`);
-            } else {
-                res.sendStatus(401);
-                console.log('Bad Login');
-            }
+            this.verifyLogin(arr, login, res);
         });
     }
 
-    register(req, res, db) {
-        const collection = db.collection(this.collectionStr);
+    register(req, res, AuthModel, UserModel) {
+        //const collection = db.collection(this.collectionStr);
         const login = {
             username: req.body.username.toLowerCase(),
             password: req.body.password,
@@ -68,21 +50,34 @@ class Auth {
             };
 
             //TODO ONLY ON USER CHECK
-
-            collection.insertOne(store, (err, result) => {
+            new AuthModel(store).save((err, inserted) => {
                 if (err) throw err;
-                console.log(result.ops.length);
-                if (result.ops.length === 1) {
-                    res.sendStatus(201);
-                }
+                console.log(`registered ${inserted.username}`);
+                res.sendStatus(201);
             });
+            
+            new UserModel({ username: store.username, vehicleIds: [] })
+                .save((err) => {
+                    if (err) throw err;
+                });
         });
     }
 
-    verifyLogin(row, password) {
-        const freshHash = crypto.pbkdf2Sync(password, row.salt.buffer, row.ITERATION, 256, 'sha256').toString('hex');
+    verifyLogin(arr, login, res) {
+        if (arr.length !== 1) {
+            throw console.log('Error in username number!' + arr);
+        }
 
-        return row.hashed === freshHash;
+        const loginAttempt = arr[0];
+        const freshHash = crypto.pbkdf2Sync(login.password, loginAttempt.salt.buffer, loginAttempt.ITERATION, 256, 'sha256').toString('hex');
+
+        if (loginAttempt.hashed === freshHash) {
+            res.sendStatus(200);
+            console.log(`${login.username} login verified.`);
+        } else {
+            res.sendStatus(401);
+            console.log('Bad Login');
+        }
     }
 }
 
