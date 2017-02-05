@@ -3,6 +3,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import {MongoClient} from 'mongodb';
 import mongoose from 'mongoose';
+import findOrCreate from 'mongoose-findorcreate';
 import assert from 'assert';
 
 import Auth from './Auth';
@@ -40,12 +41,12 @@ app.post('/register', (req, res) => {
     serverAuth.register(req, res, models.AuthModel, models.UserModel);
 });
 
-app.get('/vehicles', (req, res) => {
-    vehicles.getVehicles(req, res, db);
+app.get('/vehicles/:username', (req, res) => {
+    vehicles.getVehicles(req, res, models);
 });
 
 app.post('/vehicles/new', (req, res) => {
-    vehicles.newVehicle(req, res, db);
+    vehicles.newVehicle(req, res, models);
 });
 
 app.get('/', (req, res) => {
@@ -60,8 +61,8 @@ function buildModels() {
     console.log('connected to db');
     models['AuthModel'] = mongoose.model('Auth', AuthSchema);
     models['UserModel'] = mongoose.model('User', UserSchema);
-    models['UserVehicleModel'] = mongoose.model('User-Vehicle', UserVehicleSchema);
-    models['VehicleModel'] = mongoose.model('Vehicle', VehicleSchema);
+    models['UserVehicleModel'] = mongoose.model('User_Vehicle', UserVehicleSchema);
+    models['VehicleModel'] = mongoose.model('Vehicle', VehicleSchema.plugin(findOrCreate));
 }
 
 

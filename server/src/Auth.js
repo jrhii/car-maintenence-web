@@ -26,7 +26,7 @@ class Auth {
 
         AuthModel.find({ username: login.username}, (err, arr) => {
             if (err) throw err;
-            this.verifyLogin(arr, login, res);
+            this._verifyLogin(arr, login, res);
         });
     }
 
@@ -55,15 +55,15 @@ class Auth {
                 console.log(`registered ${inserted.username}`);
                 res.sendStatus(201);
             });
-            
-            new UserModel({ username: store.username, vehicleIds: [] })
+
+            new UserModel({ username: store.username, ownedIds: [] })
                 .save((err) => {
                     if (err) throw err;
                 });
         });
     }
 
-    verifyLogin(arr, login, res) {
+    _verifyLogin(arr, login, res) {
         if (arr.length !== 1) {
             throw console.log('Error in username number!' + arr);
         }
