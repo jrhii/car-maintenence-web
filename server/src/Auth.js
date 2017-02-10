@@ -39,7 +39,7 @@ class Auth {
 
         console.log(`registering ${login.username}`);
         const ITERATION = 20000;
-        const salt = crypto.randomBytes(16);
+        const salt = crypto.randomBytes(16).toString('hex');
         crypto.pbkdf2(login.password, salt, ITERATION, 256, 'sha256', (err, key) => {
 
             const store = {
@@ -53,7 +53,6 @@ class Auth {
             new AuthModel(store).save((err, inserted) => {
                 if (err) throw err;
                 console.log(`registered ${inserted.username}`);
-                res.sendStatus(201);
             });
 
             new UserModel({ username: store.username, ownedIds: [] })
@@ -69,15 +68,18 @@ class Auth {
         }
 
         const loginAttempt = arr[0];
-        const freshHash = crypto.pbkdf2Sync(login.password, loginAttempt.salt.buffer, loginAttempt.ITERATION, 256, 'sha256').toString('hex');
+        crypto.pbkdf2(login.password, loginAttempt.salt, loginAttempt.ITERATION, 256, 'sha256', (err, key) => {
+            if (err) throw err;
+            const freshHash = key.toString('hex');
 
-        if (loginAttempt.hashed === freshHash) {
-            res.sendStatus(200);
-            console.log(`${login.username} login verified.`);
-        } else {
-            res.sendStatus(401);
-            console.log('Bad Login');
-        }
+            if (loginAttempt.hashed === freshHash) {
+                res.sendStatus(200);
+                console.log(`${login.username} login verified.`);
+            } else {
+                res.sendStatus(401);
+                console.log('Bad Login');
+            }
+        });
     }
 }
 

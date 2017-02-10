@@ -45,6 +45,14 @@ app.get('/vehicles/:username', (req, res) => {
     vehicles.getVehicles(req, res, models);
 });
 
+app.post('/vehicles/edit', (req, res) => {
+    vehicles.updateVehicle(req, res, models);
+});
+
+app.delete('/vehicles/delete', (req, res) => {
+    vehicles.deleteVehicle(req, res, models);
+});
+
 app.post('/vehicles/new', (req, res) => {
     vehicles.newVehicle(req, res, models);
 });
