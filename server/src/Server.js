@@ -4,7 +4,6 @@ import bodyParser from 'body-parser';
 import {MongoClient} from 'mongodb';
 import mongoose from 'mongoose';
 import findOrCreate from 'mongoose-findorcreate';
-import assert from 'assert';
 
 import Auth from './Auth';
 import Vehicles from './Vehicles';
@@ -17,7 +16,6 @@ import VehicleSchema from './schema/vehicle-schema';
 const app = new express();
 const httpServer = http.createServer(app);
 const serverAuth = new Auth();
-const vehicles = new Vehicles('vehicles');
 
 const apiPort = 4000;
 const DB_ADDRESS = 'mongodb://localhost:27017/car-app';
@@ -26,6 +24,8 @@ mongoose.connect(DB_ADDRESS);
 const db = mongoose.connection;
 const models = {};
 db.once('open', buildModels);
+
+const vehicles = new Vehicles(models);
 
 app.use(bodyParser.json());
 

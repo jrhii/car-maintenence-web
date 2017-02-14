@@ -1,19 +1,39 @@
 import mongoose from 'mongoose';
 
 class Vehicles {
-    constructor(collectionStr) {
-        this.collectionStr = collectionStr;
+    constructor(models) {
+        this.models = models;
     }
 
-    deleteVehicle(req, res, {UserVehicleModel}) {
+    deleteVehicle(req, res, {UserVehicleModel, UserModel}) {
         const ownedId = mongoose.Types.ObjectId(req.body.id);
         console.log(`deleting user vehicle ${ownedId}`);
 
         UserVehicleModel.findOneAndRemove({_id: ownedId}, (err, deleted) => {
             if (err) throw err;
 
-            console.log(`deleted user vehicle ${deleted._id}`);
-            res.sendStatus(200);
+            UserModel.findOne({_id: deleted.userId}, (err, user) => {
+                if (err) throw err;
+
+                const idIndex = user.ownedIds.findIndex(id => {
+                    return id.toString() === ownedId.toString();
+                });
+
+                user.ownedIds.splice(idIndex, 1);
+
+                user.save((err, updated) => {
+                    if (err) throw err;
+                    const indexSearch = updated.ownedIds.findIndex(id => id === ownedId);
+
+                    if (indexSearch !== -1) {
+                        res.sendStatus(500);
+                        throw updated;
+                    } else {
+                        console.log(`deleted user vehicle ${deleted._id}`);
+                        res.sendStatus(200);
+                    }
+                });
+            });
         });
     }
 
@@ -30,13 +50,17 @@ class Vehicles {
 
         UserVehicleModel.findOne({_id: ownedId}, (err, userVehicle) => {
             if (err) throw err;
-            const vehicleId = userVehicle.vehicleId;
 
-            VehicleModel.findOneAndUpdate({_id: vehicleId}, vehicleUpdate, {new: true}, (err, updated) => {
+            VehicleModel.findOrCreate(vehicleUpdate, (err, newVehicle) => {
                 if (err) throw err;
 
-                console.log(`${updated.model} updated`);
-                res.json(updated);
+                userVehicle.vehicleId = newVehicle._id;
+                userVehicle.save(err => {
+                    if (err) throw err;
+
+                    console.log(`${newVehicle.model} updated`);
+                    res.json(newVehicle);
+                });
             });
         });
     }
@@ -62,7 +86,7 @@ class Vehicles {
                             year: vehicle.year,
                             make: vehicle.make,
                             model: vehicle.model,
-                            id: vehicle._id.toString('hex'),
+                            id: ownedVehicle._id.toString('hex'),
                         });
 
                         if (returnArr.length === vehicles.length) {
@@ -109,6 +133,18 @@ class Vehicles {
                     });
                 });
             });
+        });
+    }
+
+    _displayDb() {
+        this.models.VehicleModel.find((err, res) => {
+            console.log(`Vehicles\n ${res}`);
+        });
+        this.models.UserVehicleModel.find((err, res) => {
+            console.log(`User Vehicles\n ${res}`);
+        });
+        this.models.UserModel.find((err, res) => {
+            console.log(`Users\n ${res}`);
         });
     }
 }

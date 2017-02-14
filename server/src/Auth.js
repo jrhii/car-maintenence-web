@@ -52,13 +52,14 @@ class Auth {
             //TODO ONLY ON USER CHECK
             new AuthModel(store).save((err, inserted) => {
                 if (err) throw err;
-                console.log(`registered ${inserted.username}`);
-            });
+                new UserModel({ username: store.username, ownedIds: [] })
+                    .save((err) => {
+                        if (err) throw err;
 
-            new UserModel({ username: store.username, ownedIds: [] })
-                .save((err) => {
-                    if (err) throw err;
-                });
+                        res.sendStatus(200);
+                        console.log(`registered ${inserted.username}`);
+                    });
+            });
         });
     }
 
