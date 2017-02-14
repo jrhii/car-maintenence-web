@@ -3,7 +3,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import {MongoClient} from 'mongodb';
 import mongoose from 'mongoose';
-import assert from 'assert';
+import findOrCreate from 'mongoose-findorcreate';
 
 import Auth from './Auth';
 import Vehicles from './Vehicles';
@@ -16,7 +16,6 @@ import VehicleSchema from './schema/vehicle-schema';
 const app = new express();
 const httpServer = http.createServer(app);
 const serverAuth = new Auth();
-const vehicles = new Vehicles('vehicles');
 
 const apiPort = 4000;
 const DB_ADDRESS = 'mongodb://localhost:27017/car-app';
@@ -25,6 +24,8 @@ mongoose.connect(DB_ADDRESS);
 const db = mongoose.connection;
 const models = {};
 db.once('open', buildModels);
+
+const vehicles = new Vehicles(models);
 
 app.use(bodyParser.json());
 
@@ -40,12 +41,20 @@ app.post('/register', (req, res) => {
     serverAuth.register(req, res, models.AuthModel, models.UserModel);
 });
 
-app.get('/vehicles', (req, res) => {
-    vehicles.getVehicles(req, res, db);
+app.get('/vehicles/:username', (req, res) => {
+    vehicles.getVehicles(req, res, models);
+});
+
+app.post('/vehicles/edit', (req, res) => {
+    vehicles.updateVehicle(req, res, models);
+});
+
+app.delete('/vehicles/delete', (req, res) => {
+    vehicles.deleteVehicle(req, res, models);
 });
 
 app.post('/vehicles/new', (req, res) => {
-    vehicles.newVehicle(req, res, db);
+    vehicles.newVehicle(req, res, models);
 });
 
 app.get('/', (req, res) => {
@@ -60,8 +69,8 @@ function buildModels() {
     console.log('connected to db');
     models['AuthModel'] = mongoose.model('Auth', AuthSchema);
     models['UserModel'] = mongoose.model('User', UserSchema);
-    models['UserVehicleModel'] = mongoose.model('User-Vehicle', UserVehicleSchema);
-    models['VehicleModel'] = mongoose.model('Vehicle', VehicleSchema);
+    models['UserVehicleModel'] = mongoose.model('User_Vehicle', UserVehicleSchema);
+    models['VehicleModel'] = mongoose.model('Vehicle', VehicleSchema.plugin(findOrCreate));
 }
 
 
