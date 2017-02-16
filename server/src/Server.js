@@ -7,6 +7,7 @@ import findOrCreate from 'mongoose-findorcreate';
 
 import Auth from './Auth';
 import Vehicles from './Vehicles';
+import VehicleDetail from './VehicleDetail';
 
 import AuthSchema from './schema/auth-schema';
 import UserVehicleSchema from './schema/user-vehicle-schema';
@@ -16,6 +17,7 @@ import VehicleSchema from './schema/vehicle-schema';
 const app = new express();
 const httpServer = http.createServer(app);
 const serverAuth = new Auth();
+const vehicleDetail =  new VehicleDetail();
 
 const apiPort = 4000;
 const DB_ADDRESS = 'mongodb://localhost:27017/car-app';
@@ -55,6 +57,13 @@ app.delete('/vehicles/delete', (req, res) => {
 
 app.post('/vehicles/new', (req, res) => {
     vehicles.newVehicle(req, res, models);
+});
+
+app.post('/vehicles/details/updateMileage', (req, res) => {
+    vehicleDetail.mileageEntry(req.body.ownedId, req.body.miles, req.body.date, models, (updated) => {
+        console.log(updated);
+        res.sendStatus(200);
+    });
 });
 
 app.get('/', (req, res) => {
