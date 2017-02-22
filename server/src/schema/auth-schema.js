@@ -7,6 +7,7 @@ const AuthSchema = new Schema({
     ITERATION: { type: Number, required: true},
     salt: { type: String, require: true },
     hashed: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, required: true },
 });
 
 export default AuthSchema;

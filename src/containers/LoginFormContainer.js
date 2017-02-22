@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import SingleInput from '../components/SingleInput';
 import Container from '../components/Container';
 import { loginAuth, usernameCheck } from '../service/auth';
+import { Router } from 'react-router';
 //import {Link} from 'react-router';
 
 class LoginFormContainer extends Component {
@@ -31,7 +32,12 @@ class LoginFormContainer extends Component {
             }),
         };
 
-        loginAuth(init);
+        loginAuth(event.target.name, init, (success, resJson) => {
+            if (success) {
+                this.props.router.push(`/vehicles/user/${resJson}`);
+                //react-router to details
+            }
+        });
         this.clearForm();
 
         event.preventDefault();

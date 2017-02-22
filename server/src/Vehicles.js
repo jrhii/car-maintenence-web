@@ -6,7 +6,7 @@ class Vehicles {
     }
 
     deleteVehicle(req, res, {UserVehicleModel, UserModel}) {
-        const ownedId = mongoose.Types.ObjectId(req.body.id);
+        const ownedId = mongoose.Types.ObjectId(req.params.vehicleId);
         console.log(`deleting user vehicle ${ownedId}`);
 
         UserVehicleModel.findOneAndRemove({_id: ownedId}, (err, deleted) => {
@@ -65,41 +65,36 @@ class Vehicles {
         });
     }
 
-    getVehicles(req, res, {UserModel, UserVehicleModel, VehicleModel}) {
-        console.log(`getting vehicles for ${req.params.username}`);
-        const username = req.params.username.toLowerCase();
+    getVehicles(req, res, {UserVehicleModel, VehicleModel}) {
+        console.log(`getting vehicles for ${req.params.userId}`);
+        const userId = mongoose.Types.ObjectId(req.params.userId);
 
-        UserModel.find({ username: username}, (err, arr) => {
+        UserVehicleModel.find({userId: userId}, (err, vehicles) => {
             if (err) throw err;
-            if (arr.length !== 1) throw console.log(`incorrect number of users ${username}: ${arr.length}`);
-            const user = arr[0];
 
-            UserVehicleModel.find({userId: user._id}, (err, vehicles) => {
-                if (err) throw err;
+            const returnArr = [];
+            vehicles.forEach((ownedVehicle) => {
+                VehicleModel.findOne({_id: ownedVehicle.vehicleId}, (err, vehicle) => {
+                    if (err) throw err;
 
-                const returnArr = [];
-                vehicles.forEach((ownedVehicle) => {
-                    VehicleModel.findOne({_id: ownedVehicle.vehicleId}, (err, vehicle) => {
-                        if (err) throw err;
-
-                        returnArr.push({
-                            year: vehicle.year,
-                            make: vehicle.make,
-                            model: vehicle.model,
-                            id: ownedVehicle._id.toString('hex'),
-                        });
-
-                        if (returnArr.length === vehicles.length) {
-                            res.json(returnArr);
-                        }
+                    returnArr.push({
+                        year: vehicle.year,
+                        make: vehicle.make,
+                        model: vehicle.model,
+                        opt: vehicle.opt,
+                        id: ownedVehicle._id.toString('hex'),
                     });
+
+                    if (returnArr.length === vehicles.length) {
+                        res.json(returnArr);
+                    }
                 });
             });
         });
     }
 
     newVehicle(req, res, {VehicleModel, UserModel, UserVehicleModel}) {
-        const username = req.body.username.toLowerCase();
+        const userId = mongoose.Types.ObjectId(req.body.userId);
         const vehicle = {
             year: req.body.year,
             make: req.body.make,
@@ -109,25 +104,23 @@ class Vehicles {
 
         console.log('adding vehicle');
 
-        UserModel.find({username: username}, (err, arr) => {
+        VehicleModel.findOrCreate(vehicle, (err, result) => {
             if (err) throw err;
-            if (arr.length !== 1) throw console.log(`incorrect number of users ${username}: ${arr.length}`);
-            const user = arr[0];
 
-            VehicleModel.findOrCreate(vehicle, (err, result) => {
+            const userVehicle = {
+                userId,
+                vehicleId: result._id,
+            };
+
+            new UserVehicleModel(userVehicle).save((err, inserted) => {
                 if (err) throw err;
 
-                const userVehicle = {
-                    userId: user._id,
-                    vehicleId: result._id,
-                };
-
-                new UserVehicleModel(userVehicle).save((err, inserted) => {
+                UserModel.findOne({_id: userId}, (err, user) => {
                     if (err) throw err;
-
                     user.ownedIds.push(inserted._id);
-                    UserModel.findOneAndUpdate({_id: user._id}, {ownedIds: user.ownedIds}, (err) =>{
+                    user.save((err) => {
                         if (err) throw err;
+
                         res.sendStatus(200);
                         console.log('finished vehicle add');
                     });
@@ -136,17 +129,6 @@ class Vehicles {
         });
     }
 
-    _displayDb() {
-        this.models.VehicleModel.find((err, res) => {
-            console.log(`Vehicles\n ${res}`);
-        });
-        this.models.UserVehicleModel.find((err, res) => {
-            console.log(`User Vehicles\n ${res}`);
-        });
-        this.models.UserModel.find((err, res) => {
-            console.log(`Users\n ${res}`);
-        });
-    }
 }
 
 export default Vehicles;

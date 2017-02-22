@@ -1,22 +1,21 @@
 import crypto from 'crypto';
 
 class Auth {
-    checkUsername(req, res, AuthModel) {
-        const username = req.body.username.toLowerCase();
+    checkUsername(username, {AuthModel}, callback) {
         console.log(`Checking username ${username}`);
 
         AuthModel.find({ username: username}, (err, arr) => {
             if (arr.length > 0) {
                 console.log(`${username} exists.`);
-                res.json({exists: true});
+                callback(true);
             } else {
                 console.log(`${username} not found.`);
-                res.json({exists: false});
+                callback(false);
             }
         });
     }
 
-    checkLogin(req, res, AuthModel) {
+    checkLogin(req, res, {AuthModel}) {
         const login = {
             username: req.body.username.toLowerCase(),
             password: req.body.password,
@@ -26,11 +25,25 @@ class Auth {
 
         AuthModel.find({ username: login.username}, (err, arr) => {
             if (err) throw err;
-            this._verifyLogin(arr, login, res);
+            if (arr.length !== 1) {
+                throw console.log('Error in username number!' + arr);
+            }
+
+            const userAuth = arr[0];
+            this._verifyLogin(userAuth, login, (success) => {
+                if (success) {
+                    console.log('Login verified, getting id');
+                    const userId = userAuth.userId;
+                    res.json(userId);
+                } else {
+                    console.log('Login Failed');
+                    res.sendStatus(401);
+                }
+            });
         });
     }
 
-    register(req, res, AuthModel, UserModel) {
+    register(req, res, {AuthModel, UserModel}) {
         //const collection = db.collection(this.collectionStr);
         const login = {
             username: req.body.username.toLowerCase(),
@@ -50,36 +63,34 @@ class Auth {
             };
 
             //TODO ONLY ON USER CHECK
-            new AuthModel(store).save((err, inserted) => {
-                if (err) throw err;
+            this.checkUsername(login.username, {AuthModel}, (exists) => {
+                if (exists) {
+                    res.sendStatus(401);
+                    return null;
+                }
                 new UserModel({ username: store.username, ownedIds: [] })
-                    .save((err) => {
+                    .save((err, user) => {
                         if (err) throw err;
 
-                        res.sendStatus(200);
-                        console.log(`registered ${inserted.username}`);
+                        store['userId'] = user._id;
+                        new AuthModel(store).save((err) => {
+                            if (err) throw err;
+
+                            const userId = user._id;
+                            res.json(userId);
+                            console.log(`registered ${user.username}`);
+                        });
                     });
             });
         });
     }
 
-    _verifyLogin(arr, login, res) {
-        if (arr.length !== 1) {
-            throw console.log('Error in username number!' + arr);
-        }
-
-        const loginAttempt = arr[0];
+    _verifyLogin(loginAttempt, login, callback) {
         crypto.pbkdf2(login.password, loginAttempt.salt, loginAttempt.ITERATION, 256, 'sha256', (err, key) => {
             if (err) throw err;
             const freshHash = key.toString('hex');
 
-            if (loginAttempt.hashed === freshHash) {
-                res.sendStatus(200);
-                console.log(`${login.username} login verified.`);
-            } else {
-                res.sendStatus(401);
-                console.log('Bad Login');
-            }
+            callback(loginAttempt.hashed === freshHash);
         });
     }
 }
