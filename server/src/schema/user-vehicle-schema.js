@@ -12,7 +12,7 @@ const lifeTimeUpdate = [{
 const UserVehicleSchema = new Schema({
     userId: {type: Schema.Types.ObjectId, required: true},
     vehicleId: {type: Schema.Types.ObjectId, required: true},
-    startMiles: Number,
+    /*startMiles: Number,
     lifetimeUpdates: {type: [{
         date: {type: Date, default: Date.now},
         miles: Number,
@@ -26,7 +26,7 @@ const UserVehicleSchema = new Schema({
         gallons: Number,
         cost: Number,
     }]},
-    startMileage: {type: Number, default: -1},
+    startMileage: {type: Number, default: -1},*/
 });
 
 export default UserVehicleSchema;

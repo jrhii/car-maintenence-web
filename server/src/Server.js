@@ -31,35 +31,35 @@ const vehicles = new Vehicles(models);
 
 app.use(bodyParser.json());
 
-app.post('/checkUsername', (req, res) => {
-    serverAuth.checkUsername(req, res, models.AuthModel);
+app.post('/api/checkUsername', (req, res) => {
+    serverAuth.checkUsername(req, res, models);
 });
 
-app.post('/login', (req, res) => {
-    serverAuth.checkLogin(req, res, models.AuthModel);
+app.post('/api/login', (req, res) => {
+    serverAuth.checkLogin(req, res, models);
 });
 
-app.post('/register', (req, res) => {
-    serverAuth.register(req, res, models.AuthModel, models.UserModel);
+app.post('/api/register', (req, res) => {
+    serverAuth.register(req, res, models);
 });
 
-app.get('/vehicles/:username', (req, res) => {
+app.get('/api/vehicles/get/:userId', (req, res) => {
     vehicles.getVehicles(req, res, models);
 });
 
-app.post('/vehicles/edit', (req, res) => {
+app.post('/api/vehicles/edit', (req, res) => {
     vehicles.updateVehicle(req, res, models);
 });
 
-app.delete('/vehicles/delete', (req, res) => {
+app.delete('/api/vehicles/delete/:vehicleId', (req, res) => {
     vehicles.deleteVehicle(req, res, models);
 });
 
-app.post('/vehicles/new', (req, res) => {
+app.post('/api/vehicles/new', (req, res) => {
     vehicles.newVehicle(req, res, models);
 });
 
-app.post('/vehicles/details/updateMileage', (req, res) => {
+app.post('/api/vehicles/details/updateMileage', (req, res) => {
     vehicleDetail.mileageEntry(req.body.ownedId, req.body.miles, req.body.date, models, (updated) => {
         console.log(updated);
         res.sendStatus(200);
@@ -80,6 +80,17 @@ function buildModels() {
     models['UserModel'] = mongoose.model('User', UserSchema);
     models['UserVehicleModel'] = mongoose.model('User_Vehicle', UserVehicleSchema);
     models['VehicleModel'] = mongoose.model('Vehicle', VehicleSchema.plugin(findOrCreate));
+}
+
+function _displayDb() {
+    for (let model in models) {
+        if (models.hasOwnProperty(model)) {
+            console.log(model);
+            models[model].find((err, res) => {
+                console.log(`${model}\n ${res}`);
+            });
+        }
+    }
 }
 
 
