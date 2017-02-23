@@ -5,6 +5,7 @@ import LoginFormContainer from './containers/LoginFormContainer';
 import Vehicles from './containers/vehicle/Vehicles';
 import AddVehicle from './containers/vehicle/AddVehicle';
 import EditVehicle from './containers/vehicle/EditVehicle.js';
+import Detailed from './containers/Detailed.js';
 import './index.css';
 import { Router, Route, browserHistory, IndexRoute } from 'react-router';
 
@@ -13,10 +14,11 @@ ReactDOM.render((
         <Route path="/" component={App}>
             <IndexRoute component={LoginFormContainer}/>
             <Route path="login" component={LoginFormContainer}/>
-            <Route path="vehicles"  >
+            <Route path="vehicles">
                 <Route path="user/:userId" component={Vehicles}/>
                 <Route path="new/:userId" component={AddVehicle}/>
                 <Route path="edit/:userId/:year/:make/:model/:opt/:vehicleId" component={EditVehicle}/>
+                <Route path="details/:userId/:year/:make/:model/:opt/:vehicleId" component={Detailed}/>
             </Route>
         </Route>
     </Router>),

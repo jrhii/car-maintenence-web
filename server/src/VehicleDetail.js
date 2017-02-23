@@ -1,31 +1,78 @@
+import TripsSchema from './schema/trips-schema.js';
+import mongoose from 'mongoose';
+
 class VehicleDetail {
+    getDetails(req, res, {UserVehicleModel}) {
+        const TripsModel = mongoose.model(`Trips_${req.params.ownedId}`, TripsSchema),
+            resJson = {vehicle: {}, trips: []};
+
+        UserVehicleModel.findOne({_id: req.params.ownedId}, (err, ownedVehicle) => {
+            if (err) throw err;
+
+            resJson.vehicle = {
+                startMiles: ownedVehicle.startMiles,
+                latestUpdate: ownedVehicle.latestUpdate,
+                totalMiles: ownedVehicle.totalMiles,
+                totalGallons: ownedVehicle.totalGallons,
+                totalCost: ownedVehicle.totalCost,
+            };
+
+            TripsModel.find({}).sort({date: 'desc'}).exec((err, arr) => {
+                resJson.trips = arr.slice(0,4);
+
+                res.json(resJson);
+            });
+        });
+    }
+
     addFillup(req, res, {UserVehicleModel}) {
-        const gallons = res.body.gallons,
-            totalMiles = res.body.miles,
-            totalCost = res.body.cost,
-            date = res.body.date,
-            ownedId = res.body.ownedId;
+        const TripsModel = mongoose.model(`Trips_${req.body.ownedId}`, TripsSchema),
+            tripGallons = req.body.gallons,
+            totalMiles = req.body.miles,
+            tripCost = req.body.cost,
+            date = new Date(req.body.date),
+            ownedId = mongoose.Types.ObjectId(req.body.ownedId);
+
+        console.log('adding Fillup');
 
         UserVehicleModel.findOne({_id: ownedId}, (err, ownedVehicle) => {
             if (err) throw err;
 
-            const oldMiles = ownedVehicle.miles[ownedVehicle.miles.length - 1],
-                tripMiles = totalMiles - oldMiles,
-                tripMPG = tripMiles / gallons,
-                tripCPG = totalCost / gallons;
+            let tripMiles = totalMiles - ownedVehicle.totalMiles;
+            ownedVehicle.latestUpdate = date;
+            ownedVehicle.markModified('latestUpdate');
+            ownedVehicle.totalMiles = totalMiles;
+            ownedVehicle.totalGallons += tripGallons;
+            ownedVehicle.totalCost += tripCost;
+
+            if (ownedVehicle.startMiles < 0) {
+                ownedVehicle.startMiles = totalMiles;
+                tripMiles = -1;
+                ownedVehicle.totalGallons = 0;
+                ownedVehicle.totalCost = 0;
+            }
 
             const newTrip = {
-                date,
+                date: date,
                 miles: totalMiles,
-                tripMiles,
-                gallons,
-                cost: totalCost,
-                tripMPG,
-                tripCPG,
+                tripMiles: tripMiles,
+                gallons: tripGallons,
+                cost: tripCost,
             };
 
-            ownedVehicle.trips.push(newTrip);
+            new TripsModel(newTrip).save((err) => {
+                if (err) {
+                    console.log(err);
+                    throw err;
+                }
 
+                ownedVehicle.save((err) => {
+                    if (err) throw err;
+
+                    res.sendStatus(200);
+                    console.log('added Fillup');
+                });
+            });
         });
     }
 

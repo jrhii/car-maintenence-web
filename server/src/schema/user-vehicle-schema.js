@@ -12,21 +12,11 @@ const lifeTimeUpdate = [{
 const UserVehicleSchema = new Schema({
     userId: {type: Schema.Types.ObjectId, required: true},
     vehicleId: {type: Schema.Types.ObjectId, required: true},
-    /*startMiles: Number,
-    lifetimeUpdates: {type: [{
-        date: {type: Date, default: Date.now},
-        miles: Number,
-        gallons: Number,
-        cost: Number,
-    }], default: lifeTimeUpdate},
-    trips: {type: [{
-        date: {type: Date, default: Date.now},
-        miles: Number,
-        tripMiles: Number,
-        gallons: Number,
-        cost: Number,
-    }]},
-    startMileage: {type: Number, default: -1},*/
+    startMiles: {type: Number, default: -1, required: true},
+    latestUpdate: {type: Date, default: Date.now, required: true},
+    totalMiles: {type: Number, default: 0, required: true},
+    totalGallons: {type: Number, default: 0, required: true},
+    totalCost: {type: Number, default: 0, required: true},
 });
 
 export default UserVehicleSchema;

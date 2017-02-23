@@ -59,11 +59,13 @@ app.post('/api/vehicles/new', (req, res) => {
     vehicles.newVehicle(req, res, models);
 });
 
-app.post('/api/vehicles/details/updateMileage', (req, res) => {
-    vehicleDetail.mileageEntry(req.body.ownedId, req.body.miles, req.body.date, models, (updated) => {
-        console.log(updated);
-        res.sendStatus(200);
-    });
+app.get('/api/vehicles/details/get/:ownedId', (req, res) => {
+    vehicleDetail.getDetails(req, res, models);
+    //_displayDb();
+});
+
+app.post('/api/vehicles/details/addFillup', (req, res) => {
+    vehicleDetail.addFillup(req, res, models);
 });
 
 app.get('/', (req, res) => {
