@@ -48,17 +48,7 @@ class LoginFormContainer extends Component {
     }
 
     handleUsernameCheck(event) {
-        const init = {
-            method: 'post',
-            headers: {
-                "Content-type": 'application/json',
-            },
-            body: JSON.stringify({
-                username: this.state.username,
-            }),
-        };
-
-        usernameCheck(init);
+        usernameCheck(this.state.username);
         event.preventDefault();
     }
 

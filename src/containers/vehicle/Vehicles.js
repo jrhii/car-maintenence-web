@@ -13,6 +13,10 @@ class Vehicles extends Component {
         this.deleteVehicle = this.deleteVehicle.bind(this);
         this.vehicleDetail = this.vehicleDetail.bind(this);
 
+        this.getVehicles();
+    }
+
+    getVehicles() {
         populateVehicles(this.state.userId, (vehicles) => {
             this.setState({vehicles: vehicles});
         });

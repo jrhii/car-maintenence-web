@@ -1,10 +1,6 @@
 import mongoose from 'mongoose';
 
 class Vehicles {
-    constructor(models) {
-        this.models = models;
-    }
-
     deleteVehicle(req, res, {UserVehicleModel, UserModel}) {
         const ownedId = mongoose.Types.ObjectId(req.params.vehicleId);
         console.log(`deleting user vehicle ${ownedId}`);
@@ -65,9 +61,8 @@ class Vehicles {
         });
     }
 
-    getVehicles(req, res, {UserVehicleModel, VehicleModel}) {
-        console.log(`getting vehicles for ${req.params.userId}`);
-        const userId = mongoose.Types.ObjectId(req.params.userId);
+    getVehicles(userId, {UserVehicleModel, VehicleModel}, callback) {
+        console.log(`getting vehicles for ${userId}`);
 
         UserVehicleModel.find({userId: userId}, (err, vehicles) => {
             if (err) throw err;
@@ -86,7 +81,7 @@ class Vehicles {
                     });
 
                     if (returnArr.length === vehicles.length) {
-                        res.json(returnArr);
+                        callback(returnArr);
                     }
                 });
             });

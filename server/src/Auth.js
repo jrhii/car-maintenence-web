@@ -26,7 +26,12 @@ class Auth {
         AuthModel.find({ username: login.username}, (err, arr) => {
             if (err) throw err;
             if (arr.length !== 1) {
-                throw console.log('Error in username number!' + arr);
+                this.checkUsername(login.username, {AuthModel}, (exists) => {
+                    if (exists) throw console.log('Error in username number!' + arr);
+
+                    res.sendStatus(401);
+                });
+                return;
             }
 
             const userAuth = arr[0];
