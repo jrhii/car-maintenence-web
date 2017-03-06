@@ -33,7 +33,12 @@ db.once('open', buildModels);
 app.use(bodyParser.json());
 
 app.get('/api/checkUsername/:username', (req, res) => {
-    serverAuth.checkUsername(req.params.username, models, (exists) => {
+    serverAuth.checkUsername(req.params.username, models, (err, exists) => {
+        if (err) {
+            console.log(err);
+            res.sendStatus(500);
+            return;
+        }
         res.json(exists);
     });
 });

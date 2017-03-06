@@ -4,7 +4,7 @@ class Auth {
     checkUsername(username, {AuthModel}, callback) {
         console.log(`Checking username ${username}`);
 
-        AuthModel.find({ username: username}, (err, arr) => {
+        AuthModel.find({username: username}, (err, arr) => {
             if (err) {
                 callback(err, null);
                 return;
@@ -47,7 +47,7 @@ class Auth {
                     res.sendStatus(500);
                     return;
                 }
-                
+
                 if (success) {
                     console.log('Login verified, getting id');
                     const userId = userAuth.userId;
