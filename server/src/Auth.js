@@ -5,12 +5,17 @@ class Auth {
         console.log(`Checking username ${username}`);
 
         AuthModel.find({ username: username}, (err, arr) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            
             if (arr.length > 0) {
                 console.log(`${username} exists.`);
-                callback(true);
+                callback(null, true);
             } else {
                 console.log(`${username} not found.`);
-                callback(false);
+                callback(null, false);
             }
         });
     }
@@ -23,19 +28,26 @@ class Auth {
 
         console.log('Checking Login');
 
-        AuthModel.find({ username: login.username}, (err, arr) => {
-            if (err) throw err;
-            if (arr.length !== 1) {
-                this.checkUsername(login.username, {AuthModel}, (exists) => {
-                    if (exists) throw console.log('Error in username number!' + arr);
+        AuthModel.find({username: login.username}, (err, arr) => {
+            if (err) {
+                console.log(err);
+                res.sendStatus(500);
+                return;
+            }
 
-                    res.sendStatus(401);
-                });
+            if (arr.length !== 1) {
+                if (arr.length > 1) throw console.log(`Too many users of ${login.username}`);
                 return;
             }
 
             const userAuth = arr[0];
-            this._verifyLogin(userAuth, login, (success) => {
+            this._verifyLogin(userAuth, login, (err, success) => {
+                if (err) {
+                    console.log(err);
+                    res.sendStatus(500);
+                    return;
+                }
+                
                 if (success) {
                     console.log('Login verified, getting id');
                     const userId = userAuth.userId;
@@ -49,7 +61,6 @@ class Auth {
     }
 
     register(req, res, {AuthModel, UserModel}) {
-        //const collection = db.collection(this.collectionStr);
         const login = {
             username: req.body.username.toLowerCase(),
             password: req.body.password,
@@ -68,18 +79,32 @@ class Auth {
             };
 
             //TODO ONLY ON USER CHECK
-            this.checkUsername(login.username, {AuthModel}, (exists) => {
+            this.checkUsername(login.username, {AuthModel}, (err, exists) => {
+                if (err) {
+                    console.log(err);
+                    res.sendStatus(500);
+                    return;
+                }
                 if (exists) {
                     res.sendStatus(401);
                     return null;
                 }
                 new UserModel({ username: store.username, ownedIds: [] })
                     .save((err, user) => {
-                        if (err) throw err;
+                        if (err) {
+                            console.log(err);
+                            res.sendStatus(500);
+                            return;
+                        }
 
                         store['userId'] = user._id;
                         new AuthModel(store).save((err) => {
-                            if (err) throw err;
+                            if (err) {
+                                console.log(err);
+                                this._removeUser(UserModel, user._id);
+                                res.sendStatus(500);
+                                return;
+                            }
 
                             const userId = user._id;
                             res.json(userId);
@@ -90,12 +115,22 @@ class Auth {
         });
     }
 
+    _removeUser(UserModel, userId) {
+        UserModel.findOneDndRemove({_id: userId}, (err) => {
+            if (err) console.log(err);
+        });
+    }
+
     _verifyLogin(loginAttempt, login, callback) {
         crypto.pbkdf2(login.password, loginAttempt.salt, loginAttempt.ITERATION, 256, 'sha256', (err, key) => {
-            if (err) throw err;
+            if (err) {
+                callback(err, null);
+                return;
+            }
+
             const freshHash = key.toString('hex');
 
-            callback(loginAttempt.hashed === freshHash);
+            callback(null, loginAttempt.hashed === freshHash);
         });
     }
 }
