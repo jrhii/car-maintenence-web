@@ -117,7 +117,7 @@ class Auth {
 
     _removeUser(UserModel, userId) {
         UserModel.findOneDndRemove({_id: userId}, (err) => {
-            if (err) console.log(err);
+            if (err) throw err;
         });
     }
 

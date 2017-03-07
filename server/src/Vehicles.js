@@ -6,7 +6,10 @@ class Vehicles {
         console.log(`deleting user vehicle ${ownedId}`);
 
         UserVehicleModel.findOneAndRemove({_id: ownedId}, (err, deleted) => {
-            if (err) throw err;
+            if (err) {
+                this._handleErr(err, res);
+                return;
+            }
 
             UserModel.findOne({_id: deleted.userId}, (err, user) => {
                 if (err) throw err;
@@ -45,10 +48,16 @@ class Vehicles {
         };
 
         UserVehicleModel.findOne({_id: ownedId}, (err, userVehicle) => {
-            if (err) throw err;
+            if (err) {
+                this._handleErr(err, res);
+                return;
+            }
 
             VehicleModel.findOrCreate(vehicleUpdate, (err, newVehicle) => {
-                if (err) throw err;
+                if (err) {
+                    this._handleErr(err, res);
+                    return;
+                }
 
                 userVehicle.vehicleId = newVehicle._id;
                 userVehicle.save(err => {
@@ -65,12 +74,18 @@ class Vehicles {
         console.log(`getting vehicles for ${userId}`);
 
         UserVehicleModel.find({userId: userId}, (err, vehicles) => {
-            if (err) throw err;
+            if (err) {
+                this._handleErr(err, res);
+                return;
+            }
 
             const returnArr = [];
             vehicles.forEach((ownedVehicle) => {
                 VehicleModel.findOne({_id: ownedVehicle.vehicleId}, (err, vehicle) => {
-                    if (err) throw err;
+                    if (err) {
+                        this._handleErr(err, res);
+                        return;
+                    }
 
                     returnArr.push({
                         year: vehicle.year,
@@ -100,7 +115,10 @@ class Vehicles {
         console.log('adding vehicle');
 
         VehicleModel.findOrCreate(vehicle, (err, result) => {
-            if (err) throw err;
+            if (err) {
+                this._handleErr(err, res);
+                return;
+            }
 
             const userVehicle = {
                 userId,
@@ -108,14 +126,26 @@ class Vehicles {
             };
 
             new UserVehicleModel(userVehicle).save((err, inserted) => {
-                if (err) throw err;
+                if (err) {
+                    this._handleErr(err, res);
+                    return;
+                }
 
                 UserModel.findOne({_id: userId}, (err, user) => {
-                    if (err) throw err;
+                    if (err) {
+                        UserVehicleModel.findOneAndRemove({_id: inserted._id}, (err) => {
+                            if (err) throw err;
+                        });
+                        return;
+                    }
                     user.ownedIds.push(inserted._id);
                     user.save((err) => {
-                        if (err) throw err;
-
+                        if (err) {
+                            UserVehicleModel.findOneAndRemove({_id: inserted._id}, (err) => {
+                                if (err) throw err;
+                            });
+                            return;
+                        }
                         res.sendStatus(200);
                         console.log('finished vehicle add');
                     });
@@ -124,6 +154,10 @@ class Vehicles {
         });
     }
 
+    _handleErr(err, res) {
+        console.log(err);
+        res.sendStatus(500);
+    }
 }
 
 export default Vehicles;
