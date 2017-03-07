@@ -11,7 +11,12 @@ class Vehicles extends Component {
         this.state = {userId: props.params.userId, newVehiclePath: `/vehicles/new/${props.params.userId}`, vehicles: []};
         this.edit = this.edit.bind(this);
         this.deleteVehicle = this.deleteVehicle.bind(this);
+        this.vehicleDetail = this.vehicleDetail.bind(this);
 
+        this.getVehicles();
+    }
+
+    getVehicles() {
         populateVehicles(this.state.userId, (vehicles) => {
             this.setState({vehicles: vehicles});
         });
@@ -37,10 +42,14 @@ class Vehicles extends Component {
         });
     }
 
+    vehicleDetail(vehicle) {
+        this.props.router.push(`/vehicles/details/${this.state.userId}/${vehicle.year}/${vehicle.make}/${vehicle.model}/${vehicle.opt}/${vehicle.id}`);
+    }
+
     render() {
         return (
             <Container>
-                <DynamicVehicleList vehicles={this.state.vehicles} edit={this.edit} deleteVehicle={this.deleteVehicle}/>
+                <DynamicVehicleList vehicles={this.state.vehicles} edit={this.edit} deleteVehicle={this.deleteVehicle} vehicleDetail={this.vehicleDetail}/>
                 <Link type="button" className="btn btn-outline-primary" name="newVehicle" to={this.state.newVehiclePath}>New Vehicle</Link>
             </Container>
         );

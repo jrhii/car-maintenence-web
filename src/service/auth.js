@@ -12,8 +12,8 @@ function loginAuth (eventName, init, callback) {
     });
 }
 
-function usernameCheck(init) {
-    fetch('/api/checkUsername',init).then((res) => {
+function usernameCheck(username) {
+    fetch(`/api/checkUsername/${username}`).then((res) => {
         res.json().then((json) => {
             if (!json.exists) {
                 alert('Username available');

@@ -12,7 +12,7 @@ const DymanicVehicleList = (props) => (
                 <div key={key}>
                     <li className="list-group-item group-btn">
                         <div className="btn-group btn-block">
-                            <button className="btn btn-block btn-secondary" type="button" onClick={props.vehicleDetail}>{yearMakeModel}</button>
+                            <button className="btn btn-block btn-secondary" type="button" onClick={props.vehicleDetail.bind(null, vehicle)}>{yearMakeModel}</button>
                             <button className="btn btn-warning" type="button" onClick={props.edit.bind(null, vehicle.id)}>Edit</button>
                             <button className="btn btn-danger" type="button" data-toggle="modal" data-target={targetStr}>X</button>
                         </div>

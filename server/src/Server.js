@@ -8,6 +8,7 @@ import findOrCreate from 'mongoose-findorcreate';
 import Auth from './Auth';
 import Vehicles from './Vehicles';
 import VehicleDetail from './VehicleDetail';
+import Users from './Users';
 
 import AuthSchema from './schema/auth-schema';
 import UserVehicleSchema from './schema/user-vehicle-schema';
@@ -18,6 +19,8 @@ const app = new express();
 const httpServer = http.createServer(app);
 const serverAuth = new Auth();
 const vehicleDetail =  new VehicleDetail();
+const vehicles = new Vehicles();
+const users = new Users();
 
 const apiPort = 4000;
 const DB_ADDRESS = 'mongodb://localhost:27017/car-app';
@@ -27,12 +30,17 @@ const db = mongoose.connection;
 const models = {};
 db.once('open', buildModels);
 
-const vehicles = new Vehicles(models);
-
 app.use(bodyParser.json());
 
-app.post('/api/checkUsername', (req, res) => {
-    serverAuth.checkUsername(req, res, models);
+app.get('/api/checkUsername/:username', (req, res) => {
+    serverAuth.checkUsername(req.params.username, models, (err, exists) => {
+        if (err) {
+            console.log(err);
+            res.sendStatus(500);
+            return;
+        }
+        res.json(exists);
+    });
 });
 
 app.post('/api/login', (req, res) => {
@@ -44,7 +52,9 @@ app.post('/api/register', (req, res) => {
 });
 
 app.get('/api/vehicles/get/:userId', (req, res) => {
-    vehicles.getVehicles(req, res, models);
+    vehicles.getVehicles(req.params.userId, models, (vehicles) => {
+        res.json(vehicles);
+    });
 });
 
 app.post('/api/vehicles/edit', (req, res) => {
@@ -59,10 +69,31 @@ app.post('/api/vehicles/new', (req, res) => {
     vehicles.newVehicle(req, res, models);
 });
 
-app.post('/api/vehicles/details/updateMileage', (req, res) => {
-    vehicleDetail.mileageEntry(req.body.ownedId, req.body.miles, req.body.date, models, (updated) => {
-        console.log(updated);
-        res.sendStatus(200);
+app.get('/api/vehicles/details/get/:ownedId', (req, res) => {
+    vehicleDetail.getDetails(req, res, models);
+    //_displayDb();
+});
+
+app.post('/api/vehicles/details/addFillup', (req, res) => {
+    vehicleDetail.addFillup(req, res, models);
+});
+
+app.get('/api/admin/users/:userId', (req, res) => {
+    users.getUsers(req, models, (err, usersArr) => {
+        if (err) {
+            res.sendStatus(403);
+        } else {
+            const returnArr = [];
+            for (let user of usersArr) {
+                vehicles.getVehicles(user._id, models, (vehicleArr) => {
+                    returnArr.push({user, vehicleArr});
+
+                    if (returnArr.length === usersArr.length) {
+                        res.json(returnArr);
+                    }
+                });
+            }
+        }
     });
 });
 
