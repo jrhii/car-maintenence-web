@@ -12,6 +12,11 @@ class VehicleDetail {
                 return;
             }
 
+            if (!ownedVehicle) {
+                res.sendStatus(400);
+                return;
+            }
+
             resJson.vehicle = {
                 startMiles: ownedVehicle.startMiles,
                 latestUpdate: ownedVehicle.latestUpdate,
@@ -58,9 +63,11 @@ class VehicleDetail {
 
             if (ownedVehicle.startMiles < 0) {
                 ownedVehicle.startMiles = totalMiles;
+                ownedVehicle.startGallons = tripGallons;
+                ownedVehicle.startCost = tripCost;
                 tripMiles = -1;
-                ownedVehicle.totalGallons = 0;
-                ownedVehicle.totalCost = 0;
+                ownedVehicle.totalGallons = tripGallons;
+                ownedVehicle.totalCost = tripCost;
             }
 
             const newTrip = {

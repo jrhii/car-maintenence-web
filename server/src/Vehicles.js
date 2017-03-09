@@ -75,15 +75,23 @@ class Vehicles {
 
         UserVehicleModel.find({userId: userId}, (err, vehicles) => {
             if (err) {
-                this._handleErr(err, res);
+                console.log(err);
+                callback(err);
                 return;
             }
 
             const returnArr = [];
+
+            if (vehicles.length === 0) {
+                callback(null, returnArr);
+                return;
+            }
+
             vehicles.forEach((ownedVehicle) => {
                 VehicleModel.findOne({_id: ownedVehicle.vehicleId}, (err, vehicle) => {
                     if (err) {
-                        this._handleErr(err, res);
+                        console.log(err);
+                        callback(err);
                         return;
                     }
 
@@ -96,7 +104,8 @@ class Vehicles {
                     });
 
                     if (returnArr.length === vehicles.length) {
-                        callback(returnArr);
+                        console.log('sending vehicles back');
+                        callback(null, returnArr);
                     }
                 });
             });

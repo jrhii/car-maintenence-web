@@ -60,11 +60,8 @@ class Auth {
         });
     }
 
-    register(req, res, {AuthModel, UserModel}) {
-        const login = {
-            username: req.body.username.toLowerCase(),
-            password: req.body.password,
-        };
+    register(login, {AuthModel, UserModel}, callback) {
+        //login = {username, password}
 
         console.log(`registering ${login.username}`);
         const ITERATION = 20000;
@@ -82,18 +79,18 @@ class Auth {
             this.checkUsername(login.username, {AuthModel}, (err, exists) => {
                 if (err) {
                     console.log(err);
-                    res.sendStatus(500);
+                    callback(500);
                     return;
                 }
                 if (exists) {
-                    res.sendStatus(401);
+                    callback(401);
                     return null;
                 }
                 new UserModel({ username: store.username, ownedIds: [] })
                     .save((err, user) => {
                         if (err) {
                             console.log(err);
-                            res.sendStatus(500);
+                            callback(500);
                             return;
                         }
 
@@ -102,15 +99,34 @@ class Auth {
                             if (err) {
                                 console.log(err);
                                 this._removeUser(UserModel, user._id);
-                                res.sendStatus(500);
+                                callback(500);
                                 return;
                             }
 
                             const userId = user._id;
-                            res.json(userId);
+                            callback(null, userId);
                             console.log(`registered ${user.username}`);
                         });
                     });
+            });
+        });
+    }
+
+    setAdmin(userId, isAdmin, {UserModel}, callback) {
+        UserModel.findOne({_id: userId}, (err, user) => {
+            if (err) {
+                callback(err);
+                return;
+            }
+            user.isAdmin = isAdmin;
+            user.save(err => {
+                if (err) {
+                    console.log(err);
+                }
+
+                if (callback) {
+                    callback();
+                }
             });
         });
     }

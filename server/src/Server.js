@@ -28,7 +28,9 @@ const DB_ADDRESS = 'mongodb://localhost:27017/car-app';
 mongoose.connect(DB_ADDRESS);
 const db = mongoose.connection;
 const models = {};
-db.once('open', buildModels);
+db.once('open', () => {
+    buildModels(testAdmin);//ONLY FOR DEV PURPOSES
+});
 
 app.use(bodyParser.json());
 
@@ -48,12 +50,24 @@ app.post('/api/login', (req, res) => {
 });
 
 app.post('/api/register', (req, res) => {
-    serverAuth.register(req, res, models);
+    const login = {username: req.body.username, password: req.body.password};
+    serverAuth.register(login, models, (statusCode, userId) => {
+        if (statusCode) {
+            res.sendStatus(statusCode);
+        } else {
+            res.json(userId);
+        }
+    });
 });
 
 app.get('/api/vehicles/get/:userId', (req, res) => {
-    vehicles.getVehicles(req.params.userId, models, (vehicles) => {
-        res.json(vehicles);
+    vehicles.getVehicles(req.params.userId, models, (err, vehicles) => {
+        if (err) {
+            console.log(`error 3! ${err}`);
+            res.sendStatus(500);
+        } else {
+            res.json(vehicles);
+        }
     });
 });
 
@@ -85,7 +99,11 @@ app.get('/api/admin/users/:userId', (req, res) => {
         } else {
             const returnArr = [];
             for (let user of usersArr) {
-                vehicles.getVehicles(user._id, models, (vehicleArr) => {
+                vehicles.getVehicles(user._id, models, (err, vehicleArr) => {
+                    if (err) {
+                        res.sendStatus(500);
+                        return;
+                    }
                     returnArr.push({user, vehicleArr});
 
                     if (returnArr.length === usersArr.length) {
@@ -105,12 +123,16 @@ httpServer.listen(apiPort, () => {
     console.log('listening on port 4000');
 });
 
-function buildModels() {
+function buildModels(callback) {
     console.log('connected to db');
     models['AuthModel'] = mongoose.model('Auth', AuthSchema);
     models['UserModel'] = mongoose.model('User', UserSchema);
     models['UserVehicleModel'] = mongoose.model('User_Vehicle', UserVehicleSchema);
     models['VehicleModel'] = mongoose.model('Vehicle', VehicleSchema.plugin(findOrCreate));
+
+    if (callback) {
+        callback();
+    }
 }
 
 function _displayDb() {
@@ -122,6 +144,35 @@ function _displayDb() {
             });
         }
     }
+}
+
+function testAdmin() {
+    console.log('Creating test admin');
+    serverAuth.register({username: 'admin', password: 'admin'}, models, (statusCode, userId) => {
+        if (statusCode) {
+            switch (statusCode) {
+            case 401:
+                console.log('admin already exists');
+                break;
+            case 500:
+                console.log('Mongo error');
+                break;
+            default:
+                console.log(`Unkown error ${statusCode}`);
+                break;
+            }
+        } else {
+            serverAuth.setAdmin(userId, true, models, (err) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log('created admin');
+                }
+            });
+        }
+
+
+    });
 }
 
 
