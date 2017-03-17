@@ -23,7 +23,7 @@ const DetailedView = (props) => (
                 <button type="button" className="btn btn-primary" name="user-vehicles" data-toggle="modal" data-target="#fillup-modal">Add Fillup</button>
             </div>
         </div>
-        <div className="row">
+        <div className="row justify-content-between">
             <div className="col-4">
                 <div className="row">
                     1Yr Ave
@@ -32,7 +32,7 @@ const DetailedView = (props) => (
                     Global Ave
                 </div>
             </div>
-            <div className="col-8">
+            <div className="col-4">
                 <div className="row">
                     Recent Trips
                 </div>
@@ -42,7 +42,7 @@ const DetailedView = (props) => (
             </div>
         </div>
 
-        <FillupModal/>
+        <FillupModal vehicleId={props.vehicle._id} addFillup={props.addFillup}/>
     </div>
 );
 
