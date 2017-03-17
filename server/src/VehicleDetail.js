@@ -17,13 +17,11 @@ class VehicleDetail {
                 return;
             }
 
-            resJson.vehicle = {
-                startMiles: ownedVehicle.startMiles,
-                latestUpdate: ownedVehicle.latestUpdate,
-                totalMiles: ownedVehicle.totalMiles,
-                totalGallons: ownedVehicle.totalGallons,
-                totalCost: ownedVehicle.totalCost,
-            };
+            for (const key in ownedVehicle) {
+                if (key !== '_id') {
+                    resJson.vehicle[key] = ownedVehicle[key];
+                }
+            }
 
             TripsModel.find({}).sort({date: 'desc'}).exec((err, arr) => {
                 if (err) {
@@ -89,7 +87,7 @@ class VehicleDetail {
                         TripsModel.findOneAndRemove({_id: created._id}, (err) ={
                             if (err) {
                                 console.log(err);
-                            }
+                            },
                         });
                         this._handleErr(err, res);
                         return;

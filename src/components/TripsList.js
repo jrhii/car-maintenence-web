@@ -3,15 +3,28 @@ import React from 'react';
 const TripsList = (props) => (
     <ol className="list-group">
         {props.trips.map((trip, key) => {
+            const date = new Date(trip.date);
             return (
                 <div key={key}>
                     <li className="list-group-item group-btn">
                         <div className="card">
-                          <div className="card-block">
-                            <h4 className="card-title">Card title</h4>
-                            <h6 className="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                            <p className="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                          </div>
+                            <div className="card-block">
+                                <div className="row">
+                                    <h4 className="card-title">{date.toDateString()}</h4>
+                                </div>
+                                <div className="row justify-content-between">
+                                    <div className="col">
+                                        <h6 className="card-subtitle mb-2">Total Miles: {trip.miles}</h6>
+                                        <h6 className="card-subtitle mb-2">Cost: {trip.cost}</h6>
+                                        <h6 className="card-subtitle mb-2">Gallons: {trip.gallons}</h6>
+                                    </div>
+                                    <div className="col">
+                                        <h6 className="card-subtitle mb-2">Miles: {trip.tripMiles}</h6>
+                                        <h6 className="card-subtitle mb-2">MPG: {(trip.tripMiles/trip.gallons).toFixed(2)}</h6>
+                                        <h6 className="card-subtitle mb-2">CPG: {(trip.tripMiles/trip.cost).toFixed(2)}</h6>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </li>
                 </div>

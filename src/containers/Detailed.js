@@ -16,8 +16,12 @@ class Detailed extends Component {
         this.userVehicles = this.userVehicles.bind(this);
 
         getDetail(props.params.vehicleId, (details) => {
-            this.setState({vehicle: details.vehicle, trips: details.trips});
+            this.setState({vehicle: details.vehicle, trips: details.trips.splice(0,3)});
         });
+    }
+
+    addFillup() {
+        console.log('Adding fillup');
     }
 
     userVehicles() {
@@ -26,7 +30,7 @@ class Detailed extends Component {
 
     render() {
         return (
-            <DetailedView vehicleName={this.state.vehicleName} vehicle={this.state.vehicle} trips={this.state.trips} userVehicles={this.userVehicles}/>
+            <DetailedView vehicleName={this.state.vehicleName} vehicle={this.state.vehicle} trips={this.state.trips} userVehicles={this.userVehicles} addFillup={this.addFillup}/>
         );
     }
 }
