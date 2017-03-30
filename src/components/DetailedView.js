@@ -42,7 +42,11 @@ const DetailedView = (props) => (
             </div>
         </div>
 
-        <FillupModal vehicleId={props.vehicle._id} addFillup={props.addFillup}/>
+        <FillupModal 
+            vehicleId={props.vehicle._id}
+            addFillup={props.addFillup}
+            fillup={props.fillup}
+            handleFillupChange={props.handleFillupChange}/>
     </div>
 );
 
