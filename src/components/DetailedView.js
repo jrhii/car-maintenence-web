@@ -46,6 +46,7 @@ const DetailedView = (props) => (
             vehicleId={props.vehicle._id}
             addFillup={props.addFillup}
             fillup={props.fillup}
+            resetFillup={props.resetFillup}
             handleFillupChange={props.handleFillupChange}/>
     </div>
 );

@@ -44,7 +44,7 @@ const FillupModal = (props) => (
               </form>
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            <button type="button" className="btn btn-secondary" onClick={props.resetFillup} data-dismiss="modal">Cancel</button>
             <button type="button" className="btn btn-primary" onClick={props.addFillup.bind(null, props.vehicleId)} data-dismiss="modal">Submit Fillup</button>
           </div>
         </div>

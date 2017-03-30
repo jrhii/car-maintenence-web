@@ -11,12 +11,13 @@ class Detailed extends Component {
             vehicle: {},
             trips: [],
             userId: props.params.userId,
-            fillup: {costPerGallon: null, gallons: null, miles: null, cost: null, date: Date()},
+            fillup: {costPerGallon: '', gallons: '', miles: '', cost: '', date: Date()},
         };
 
         this.userVehicles = this.userVehicles.bind(this);
         this.addFillup = this.addFillup.bind(this);
         this.handleFillupChange = this.handleFillupChange.bind(this);
+        this.resetFillup = this.resetFillup.bind(this);
 
         getDetail(props.params.vehicleId, (details) => {
             this.setState({vehicle: details.vehicle, trips: details.trips.splice(0,3)});
@@ -27,6 +28,8 @@ class Detailed extends Component {
         console.log(this.state.fillup);
         console.log(ownedId);
         console.log('Adding fillup');
+
+        this.resetFillup();
     }
 
     handleFillupChange(event) {
@@ -63,6 +66,11 @@ class Detailed extends Component {
         this.setState({fillup: fillupUpdate});
     }
 
+    resetFillup() {
+        console.log('resseting modal');
+        this.setState({fillup: {costPerGallon: '', gallons: '', miles: '', cost: '', date: Date()}});
+    }
+
     userVehicles() {
         this.props.router.push(`/vehicles/user/${this.state.userId}`);
     }
@@ -76,6 +84,7 @@ class Detailed extends Component {
                 userVehicles={this.userVehicles}
                 fillup={this.state.fillup}
                 addFillup={this.addFillup}
+                resetFillup={this.resetFillup}
                 handleFillupChange={this.handleFillupChange}/>
         );
     }
