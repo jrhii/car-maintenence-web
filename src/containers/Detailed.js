@@ -11,17 +11,64 @@ class Detailed extends Component {
             vehicle: {},
             trips: [],
             userId: props.params.userId,
+            fillup: {costPerGallon: '', gallons: '', miles: '', cost: '', date: Date()},
         };
 
         this.userVehicles = this.userVehicles.bind(this);
+        this.addFillup = this.addFillup.bind(this);
+        this.handleFillupChange = this.handleFillupChange.bind(this);
+        this.resetFillup = this.resetFillup.bind(this);
 
         getDetail(props.params.vehicleId, (details) => {
             this.setState({vehicle: details.vehicle, trips: details.trips.splice(0,3)});
         });
     }
 
-    addFillup() {
+    addFillup(ownedId) {
+        console.log(this.state.fillup);
+        console.log(ownedId);
         console.log('Adding fillup');
+
+        this.resetFillup();
+    }
+
+    handleFillupChange(event) {
+        const fillupUpdate = {
+            costPerGallon: this.state.fillup.costPerGallon,
+            gallons: this.state.fillup.gallons,
+            miles: this.state.fillup.miles,
+            cost: this.state.fillup.cost,
+            date: Date(),
+        };
+
+        fillupUpdate[event.target.name] = event.target.value;
+
+        if (event.target.name !== 'miles' && event.target.name !== 'date') {//autofill
+            if (fillupUpdate.gallons && (fillupUpdate.cost || fillupUpdate.costPerGallon)) {//if we have at least this much info
+                switch (event.target.name) {
+                case 'gallons':
+                    if (fillupUpdate.cost) {
+                        fillupUpdate.costPerGallon = (fillupUpdate.cost/fillupUpdate.gallons).toFixed(3);
+                    } else {
+                        fillupUpdate.cost = (fillupUpdate.gallons * fillupUpdate.costPerGallon).toFixed(2);
+                    }
+                    break;
+                case 'cost':
+                    fillupUpdate.costPerGallon = (fillupUpdate.cost/fillupUpdate.gallons).toFixed(3);
+                    break;
+                case 'costPerGallon':
+                    fillupUpdate.cost = (fillupUpdate.gallons * fillupUpdate.costPerGallon).toFixed(2);
+                    break;
+                }
+            }
+        }
+
+        this.setState({fillup: fillupUpdate});
+    }
+
+    resetFillup() {
+        console.log('resseting modal');
+        this.setState({fillup: {costPerGallon: '', gallons: '', miles: '', cost: '', date: Date()}});
     }
 
     userVehicles() {
@@ -30,7 +77,15 @@ class Detailed extends Component {
 
     render() {
         return (
-            <DetailedView vehicleName={this.state.vehicleName} vehicle={this.state.vehicle} trips={this.state.trips} userVehicles={this.userVehicles} addFillup={this.addFillup}/>
+            <DetailedView
+                vehicleName={this.state.vehicleName}
+                vehicle={this.state.vehicle}
+                trips={this.state.trips}
+                userVehicles={this.userVehicles}
+                fillup={this.state.fillup}
+                addFillup={this.addFillup}
+                resetFillup={this.resetFillup}
+                handleFillupChange={this.handleFillupChange}/>
         );
     }
 }

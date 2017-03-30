@@ -9,6 +9,7 @@ function swallow(error) {
 
 const SOURCE_FILES_JS = ['server/src/**/*.{js,jsx}'];
 const SOURCE_FILES_OTHER = ['server/src/**/*.{html,tag}'];
+const TEST_FILES_JS = ['test/src/**/*.js'];
 
 gulp.task('babel', ['other'], () => {
     return gulp.src(SOURCE_FILES_JS)
@@ -24,6 +25,13 @@ gulp.task('other', () => {
 
 gulp.task('watch', ['babel'], () => {
     gulp.watch('server/src/**/*', ['babel']);
+});
+
+gulp.task('test', () => {
+    return gulp.src(TEST_FILES_JS)
+        .pipe(babel())
+        .on('error', swallow)
+        .pipe(gulp.dest('test'));
 });
 
 gulp.task('default', ['babel']);
