@@ -5,4 +5,18 @@ function getDetail(vehicleId, callback) {
         });
     });
 }
-export {getDetail};
+
+function addFillup(fillup, callback) {
+    const init = {
+        method: 'post',
+        headers: {
+            "Content-type": 'application/json',
+        },
+        body: JSON.stringify(fillup),
+    };
+
+    fetch('/api/vehicles/details/addFillup', init).then((res) => {
+        callback();
+    });
+}
+export {getDetail, addFillup};

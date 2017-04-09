@@ -1,17 +1,25 @@
 import React, {Component} from 'react';
 import DetailedView from '../components/DetailedView';
-import {getDetail} from '../service/details';
+import {getDetail, addFillup} from '../service/details';
 import {Link, Router} from 'react-router';
 
 class Detailed extends Component {
     constructor(props) {
         super(props);
+        const opt = props.params.opt === 'undef' ? '' : props.params.opt;
+        
         this.state = {
-            vehicleName: `${props.params.year} ${props.params.make} ${props.params.model} ${props.params.opt}`,
+            vehicleName: `${props.params.year} ${props.params.make} ${props.params.model} ${opt}`,
             vehicle: {},
             trips: [],
             userId: props.params.userId,
-            fillup: {costPerGallon: '', gallons: '', miles: '', cost: '', date: Date()},
+            fillup: {
+                gallons: '',
+                costPerGallon: '',
+                miles: '',
+                cost: '',
+                date: (new Date()).toISOString(),
+            },
         };
 
         this.userVehicles = this.userVehicles.bind(this);
@@ -25,11 +33,21 @@ class Detailed extends Component {
     }
 
     addFillup(ownedId) {
-        console.log(this.state.fillup);
-        console.log(ownedId);
-        console.log('Adding fillup');
+        const apiFillup = {
+            gallons: this.state.fillup.gallons,
+            miles: this.state.fillup.miles,
+            cost: this.state.fillup.cost,
+            date: this.state.fillup.date,
+            ownedId,
+        }
 
-        this.resetFillup();
+        console.log('Adding fillup');
+        addFillup(apiFillup, () => {
+            getDetail(this.props.params.vehicleId, (details) => {
+                this.setState({vehicle: details.vehicle, trips: details.trips.splice(0,3)});
+            });
+            this.resetFillup();
+        });
     }
 
     handleFillupChange(event) {
@@ -38,7 +56,7 @@ class Detailed extends Component {
             gallons: this.state.fillup.gallons,
             miles: this.state.fillup.miles,
             cost: this.state.fillup.cost,
-            date: Date(),
+            date: (new Date()).toISOString(),
         };
 
         fillupUpdate[event.target.name] = event.target.value;
@@ -60,6 +78,12 @@ class Detailed extends Component {
                     fillupUpdate.cost = (fillupUpdate.gallons * fillupUpdate.costPerGallon).toFixed(2);
                     break;
                 }
+            }
+        }
+
+        for (let key in fillupUpdate) {//turn all the number props into Numbers
+            if (key.toString() !== 'date' && fillupUpdate.hasOwnProperty(key)) {
+                fillupUpdate[key] = parseFloat(fillupUpdate[key]);
             }
         }
 

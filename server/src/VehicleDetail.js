@@ -48,6 +48,7 @@ class VehicleDetail {
 
         UserVehicleModel.findOne({_id: ownedId}, (err, ownedVehicle) => {
             if (err) {
+                console.log('1');
                 this._handleErr(err, res);
                 return;
             }
@@ -78,16 +79,19 @@ class VehicleDetail {
 
             new TripsModel(newTrip).save((err, created) => {
                 if (err) {
+                    console.log('2');
                     this._handleErr(err, res);
                     return;
                 }
 
                 ownedVehicle.save((err) => {
                     if (err) {
-                        TripsModel.findOneAndRemove({_id: created._id}, (err) ={
+                        console.log('3');
+                        TripsModel.findOneAndRemove({_id: created._id}, (err) => {
                             if (err) {
+                                console.log('4');
                                 console.log(err);
-                            },
+                            }
                         });
                         this._handleErr(err, res);
                         return;
@@ -99,29 +103,6 @@ class VehicleDetail {
             });
         });
     }
-
-/***********************************************************************
-    mileageEntry(ownedId, newMiles, date, {UserVehicleModel}, callback) {
-        UserVehicleModel.findOne({_id: ownedId}, (err, ownedVehicle) => {
-            if (err) {
-                this._handleErr(err, res);
-                return;
-            }
-
-            const newUpdate = ownedVehicle.lifetimeUpdates[ownedVehicle.lifetimeUpdates.length - 1];
-
-            newUpdate.miles = newMiles;
-            newUpdate.date = date;
-
-            ownedVehicle.lifetimeUpdates.push(newUpdate);
-            ownedVehicle.save(err, updated => {
-                if (err) throw err;
-
-                callback(null, updated);
-            });
-        });
-    }
-****************************************************************************/
 
     _handleErr(err, res) {
         console.log(err);

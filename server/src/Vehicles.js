@@ -114,11 +114,14 @@ class Vehicles {
 
     newVehicle(req, res, {VehicleModel, UserModel, UserVehicleModel}) {
         const userId = mongoose.Types.ObjectId(req.body.userId);
+
+        const opt = req.body.opt ? req.body.opt : 'undef';
+
         const vehicle = {
             year: req.body.year,
             make: req.body.make,
             model: req.body.model,
-            opt: req.body.opt,
+            opt,
         };
 
         console.log('adding vehicle');
