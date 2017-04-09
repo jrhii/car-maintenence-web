@@ -6,12 +6,14 @@ import {editVehicle} from '../../service/vehicles';
 class EditVehicle extends Component {
     constructor(props) {
         super(props);
+        const opt = props.params.opt === 'undef' ? '' : props.params.opt;
+
         this.state = {
             userId: props.params.userId,
             year: props.params.year,
             make: props.params.make,
             model: props.params.model,
-            opt: props.params.opt,
+            opt,
             vehicleId: props.params.vehicleId,
         };
 
@@ -31,6 +33,8 @@ class EditVehicle extends Component {
             opt: this.state.opt,
             id: this.state.vehicleId,
         };
+
+        vehicle.opt = vehicle.opt ? vehicle.opt: 'undef';
 
         editVehicle(vehicle, () => {
             this.props.router.push(`/vehicles/user/${this.state.userId}`);
